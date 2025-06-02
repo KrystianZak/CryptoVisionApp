@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Portfolio - CryptoVision</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <!--Tu załaduje się Sidebar-->
+    <div id="sidebar"></div>
+
+    <!--Tu załaduje się główna treść-->
+    <div class="main-content">
+        <h1>Portfolio Visualiser</h1>
+
+        <form id="portfolio-form">
+            <div class="form-group">
+                <label for="capital">Podaj kwotę (USD):</label>
+                <input type="number" id="capital" name="capital" required>
+            </div>
+
+            <div class="form-group">
+                <label for="coins">Wybierz kryptowaluty:</label>
+                <select id="coins" name="coins" multiple required>
+                    <option value="BTC">Bitcoin (BTC)</option>
+                    <option value="ETH">Ethereum (ETH)</option>
+                    <option value="SOL">Solana (SOL)</option>
+                    <option value="BNB">Binance Coin (BNB)</option>
+                    <option value="ADA">Cardano (ADA)</option>
+                </select>
+                <small>Przytrzymaj Ctrl, aby wybrać kilka</small>
+            </div>
+
+            <div id="percentages-container"></div>
+
+            <button type="submit">Oblicz</button>
+        </form>
+
+        <div id="portfolio-result" class="portfolio-table"></div>
+    </div>
+
+    <script src="/js/sidebarLoader.js"></script>
+    <script src="/js/visualiser.js"></script>
+
+</body>
+
+</html>

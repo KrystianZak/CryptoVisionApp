@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Crypto App</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <!--Tu załaduje się Sidebar-->
+    <div id="sidebar"></div>
+
+    <!--Tu załaduje się główna treść-->
+    <div class="main-content">
+        <h1>Welcome in CryptoVision App!</h1>
+        <p>Management in progress...</p>
+    </div>
+
+    <div id="old-summary">
+        <h2>Market summary: </h2>
+        <p><strong>Global Market Cap:</strong> <span id="global-marketcap">Loading...</span></p>
+        <p><strong>BTC Price:</strong> <span id="btc-price">Loading...</span></p>
+        <p><strong>ETH Price:</strong> <span id="eth-price">Loading...</span></p>
+    </div>
+
+    <div class="crypto-summary">
+        <div class="cryptohopper-web-widget" data-id="2" data-coins="bitcoin,tether,solana" data-ticker_design="2">
+        </div>
+
+        <!-- <iframe src="https://cryptobubbles.net#currencies=1,52,74,1027,5426" width="900px" height="600px" style="border: none" loading="lazy"></iframe> -->
+    </div>
+
+
+    <script src="/js/sidebarLoader.js"></script>
+    <script src="/js/home.js"></script>
+    <script src="https://www.cryptohopper.com/widgets/js/script"></script>
+</body>
+
+</html>
