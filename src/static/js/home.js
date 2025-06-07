@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const cryptoList = data.data;
             const cryptoSummary = document.querySelector('.crypto-summary');
 
-            const importantCoins = ['BTC', 'ETH']; // Jakie coiny chcemy pokazać
+            const importantCoins = ['BTC', 'ETH', 'ADA', 'SOL', 'BNB']; // Jakie coiny chcemy pokazać
 
             importantCoins.forEach(symbol => {
                 const coin = cryptoList.find(c => c.symbol === symbol);
@@ -16,12 +16,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     const priceChange = coin.quote.USD.percent_change_24h.toFixed(2);
                     const changeClass = priceChange >= 0 ? 'positive' : 'negative';
+                    const changeIcon = priceChange >= 0 ? '↗' : '↘';
 
                     card.innerHTML = `
-              <h3>${coin.name} (${coin.symbol})</h3>
-              <p>Cena: $${coin.quote.USD.price.toFixed(2)}</p>
-              <p class="${changeClass}">Zmiana 24h: ${priceChange}%</p>
-            `;
+                        <div class="crypto-header">
+                            <div class="crypto-icon">
+                                <img src="./images/${symbol.toLowerCase()}.svg" alt="${symbol}" class="coin-icon">
+                            </div>
+                            <div class="crypto-info">
+                                <div class="crypto-pair">
+                                    <span class="symbol">${symbol}</span>
+                                    <span class="arrows">⇄</span>
+                                    <span class="usd">USD</span>
+                                </div>
+                                <div class="crypto-change">
+                                    <div class="change-indicator ${changeClass}">
+                                        <span class="change-icon">${changeIcon}</span>
+                                    </div>
+                                    <span class="change-percent ${changeClass}">${Math.abs(priceChange)}%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="crypto-price">
+                            ${coin.quote.USD.price.toFixed(2)}
+                        </div>
+                    `;
 
                     cryptoSummary.appendChild(card);
                 }
