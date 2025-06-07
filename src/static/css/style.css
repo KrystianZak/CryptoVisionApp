@@ -17,7 +17,13 @@ body {
   align-items: center;
   padding-top: 20px;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
-  z-index: 100;
+  transition: width 0.3s ease;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.sidebar.open {
+  width: 220px;
 }
 
 .logo-container {
@@ -36,26 +42,52 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
 }
 
 .nav-item {
-  width: 40px;
-  height: 40px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  padding: 10px 20px;
+  color: white;
+  text-decoration: none;
   transition: background 0.2s ease-in-out;
-  border-radius: 10px;
 }
 
 .nav-item:hover {
   background-color: #321750;
 }
 
+.nav-item.active {
+  background-color: #512e87;
+}
+
 .nav-icon {
   width: 24px;
   height: 24px;
   filter: invert(1);
+}
+
+.nav-text {
+  margin-left: 16px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  font-weight: 500;
+}
+
+.sidebar.open .nav-text {
+  opacity: 1;
+}
+
+.sidebar-toggle {
+  margin-top: auto;
+  margin-bottom: 20px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
 }
 
 .main-content {
