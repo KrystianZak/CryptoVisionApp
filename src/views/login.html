@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login | CryptoVision</title>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <style>
+    .login-logo {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 120px;
+      height: auto;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body class="login-body">
+
+  <!-- Logo w lewym górnym rogu -->
+  <img src="/images/logo.png" alt="CryptoVision Logo" class="login-logo">
+
+  <div class="login-container">
+    <h2>Welcome Back</h2>
+    <p>Enter your email and password to sign in</p>
+    <form id="loginForm">
+      <input type="email" placeholder="Your email address" id="email" required />
+      <input type="password" placeholder="Your password" id="password" required />
+      <div>
+        <input type="checkbox" id="remember" />
+        <label for="remember">Remember me</label>
+      </div>
+      <button type="submit">SIGN IN</button>
+    </form>
+    <p>Don’t have an account? <a href="#">Sign up</a></p>
+  </div>
+
+  <script src="/js/login.js"></script>
+</body>
+</html>

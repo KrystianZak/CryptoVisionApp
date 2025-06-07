@@ -5,18 +5,57 @@ body {
   font-family: Arial, sans-serif;
 }
 
-#sidebar {
-  width: 220px; /* ustalamy stałą szerokość sidebaru */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 80px;
   height: 100vh;
-  background-color: #1e1e2f;
-  color: #fff;
-  padding: 20px 0;
+  background-color: #1d1128;
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: fixed; /* SIDEBAR STAŁY */
-  top: 0;
-  left: 0;
+  padding-top: 20px;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+}
+
+.logo-container {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 40px;
+}
+
+.sidebar-logo {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.nav-item {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease-in-out;
+  border-radius: 10px;
+}
+
+.nav-item:hover {
+  background-color: #321750;
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  filter: invert(1);
 }
 
 .main-content {
@@ -113,4 +152,71 @@ body {
   tbody tr:hover {
     background-color: #34345a;
   }
-  
+
+  .login-body {
+  background-color: #1d1128;
+  font-family: sans-serif;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-container {
+  background-color: #2c1a40;
+  padding: 40px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+
+.login-container input[type="email"],
+.login-container input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 6px;
+}
+
+.login-container button {
+  width: 100%;
+  padding: 12px;
+  background-color: #b388f2;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+}
+
+.logout-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #b388f2;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.2s ease-in-out;
+  z-index: 1000;
+  width: auto;
+  height: auto;
+  max-width: 200px;
+}
+
+.login-logo {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 120px;
+  height: auto;
+  z-index: 1000;
+  border-radius: 40px;
+}

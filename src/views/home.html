@@ -9,7 +9,7 @@
 </head>
 
 <body>
-
+    <button id="logoutButton" class="logout-btn">Logout</button>
     <!--Tu załaduje się Sidebar-->
     <div id="sidebar"></div>
 
@@ -37,6 +37,20 @@
     <script src="/js/sidebarLoader.js"></script>
     <script src="/js/home.js"></script>
     <script src="https://www.cryptohopper.com/widgets/js/script"></script>
+
+    <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const logoutBtn = document.getElementById('logoutButton');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async () => {
+        const res = await fetch('/api/logout');
+        if (res.redirected) {
+          window.location.href = res.url;
+        }
+      });
+    }
+  });
+</script>
 </body>
 
 </html>
