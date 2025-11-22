@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Portfolio - CryptoVision</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <!--Tu załaduje się Sidebar-->
+    <div id="sidebar"></div>
+
+    <!--Tu załaduje się główna treść-->
+    <div class="main-content">
+        <h1>Analyzer</h1>
+
+        <form id="analyzer-form">
+
+            <div class="form-group">
+                <label for="components">Choose components:</label>
+                <input type="checkbox" id="mvrv" name="mvrv" value="mvrv">
+                <label for="mvrv">MVRV</label>
+                <input type="checkbox" id="nupl" name="nupl" value="nupl">
+                <label for="nupl">NUPL</label>
+                <input type="checkbox" id="sharpe" name="sharpe" value="sharpe">
+                <label for="sharpe">Sharpe Ratio</label>
+                <input type="checkbox" id="totalmarketcap" name="totalmarketcap" value="totalmarketcap">
+                <label for="totalmarketcap">Total MarketCap</label>
+            </div>
+
+            <button type="submit">Oblicz</button>
+        </form>
+
+        <div id="portfolio-result" class="portfolio-table"></div>
+    </div>
+
+    <script src="/js/sidebarLoader.js"></script>
+
+</body>
+
+</html>

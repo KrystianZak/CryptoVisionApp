@@ -17,4 +17,7 @@ router.get('/', requireLogin, pageController.getHomePage);
 // Chroniony dostęp do wizualizera
 router.get('/visualiser', requireLogin, pageController.getPortfolioPage);
 
+// Chroniony dostęp do strony analizy
+router.get('/analyzer', requireLogin, pageController.getAnalyzerPage);
+
 module.exports = router;

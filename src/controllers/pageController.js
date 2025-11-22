@@ -7,3 +7,7 @@ exports.getHomePage = (req, res) => {
 exports.getPortfolioPage = (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'views', 'visualiser.html'));
 };
+
+exports.getAnalyzerPage = (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'views', 'analyzer.html'));
+};
