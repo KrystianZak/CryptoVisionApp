@@ -15,27 +15,147 @@
     <div class="main-content">
         <h1>Analyzer</h1>
 
-        <form id="analyzer-form">
-
-            <div class="form-group">
-                <label for="components">Choose components:</label>
-                <input type="checkbox" id="mvrv" name="mvrv" value="mvrv">
-                <label for="mvrv">MVRV</label>
-                <input type="checkbox" id="nupl" name="nupl" value="nupl">
-                <label for="nupl">NUPL</label>
-                <input type="checkbox" id="sharpe" name="sharpe" value="sharpe">
-                <label for="sharpe">Sharpe Ratio</label>
-                <input type="checkbox" id="totalmarketcap" name="totalmarketcap" value="totalmarketcap">
-                <label for="totalmarketcap">Total MarketCap</label>
+        <form id="analyzer-form" class="analyzer-form">
+            <div class="analyzer-top">
+                <div>
+                    <p class="hint">Welcome to the analyze page.<br>Choose which components would you like to include in
+                        the market valuation:</p>
+                    <label for="timeframe">Please select timeframe for your analyze</label>
+                    <select id="timeframe" name="timeframe" class="tf-select">
+                        <option value="1D">1D</option>
+                        <option value="7D" selected>7D</option>
+                        <option value="1M">1M</option>
+                        <option value="3M">3M</option>
+                    </select>
+                </div>
+                <div class="preset-area">
+                    <input id="preset-name" placeholder="Preset name (opcjonalnie)" />
+                    <button id="save-preset" type="button">Save</button>
+                </div>
             </div>
 
-            <button type="submit">Oblicz</button>
+            <div class="indicators-grid">
+                <fieldset>
+                    <legend>Fundamental / On-chain</legend>
+
+                    <label class="ind-row">
+                        <div class="ind-left">
+                            <span class="ind-title">MVRV <small class="muted">on-chain</small></span>
+                        </div>
+                        <div class="ind-right">
+                            <label class="chk">
+                                <input type="checkbox" name="indicator" value="mvrv" data-source="onchain">
+                                <span class="chk-box"></span>
+                            </label>
+                        </div>
+                    </label>
+
+                    <label class="ind-row">
+                        <div class="ind-left"><span class="ind-title">NUPL <small class="muted">on-chain</small></span>
+                        </div>
+                        <div class="ind-right">
+                            <label class="chk">
+                                <input type="checkbox" name="indicator" value="nupl" data-source="onchain">
+                                <span class="chk-box"></span>
+                            </label>
+                        </div>
+                    </label>
+
+                    <label class="ind-row">
+                        <div class="ind-left"><span class="ind-title">SOPR <small class="muted">on-chain</small></span>
+                        </div>
+                        <div class="ind-right">
+                            <label class="chk">
+                                <input type="checkbox" name="indicator" value="sopr" data-source="onchain">
+                                <span class="chk-box"></span>
+                            </label>
+                        </div>
+                    </label>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Technical</legend>
+
+                    <label class="ind-row">
+                        <div class="ind-left"><span class="ind-title">MACD <small class="muted">price</small></span>
+                        </div>
+                        <div class="ind-right">
+                            <label class="chk">
+                                <input type="checkbox" name="indicator" value="macd" data-source="price">
+                                <span class="chk-box"></span>
+                            </label>
+                        </div>
+                    </label>
+
+                    <label class="ind-row">
+                        <div class="ind-left"><span class="ind-title">RSI <small class="muted">price</small></span>
+                        </div>
+                        <div class="ind-right">
+                            <label class="chk">
+                                <input type="checkbox" name="indicator" value="rsi" data-source="price">
+                                <span class="chk-box"></span>
+                            </label>
+                        </div>
+                    </label>
+
+                    <label class="ind-row">
+                        <div class="ind-left"><span class="ind-title">Standard Deviation <small
+                                    class="muted">price</small></span></div>
+                        <div class="ind-right">
+                            <label class="chk">
+                                <input type="checkbox" name="indicator" value="standarddeviation" data-source="price">
+                                <span class="chk-box"></span>
+                            </label>
+                        </div>
+                    </label>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Additional resources</legend>
+
+                    <label class="ind-row">
+                        <div class="ind-left"><span class="ind-title">Long / Short Ratio</span></div>
+                        <div class="ind-right">
+                            <label class="chk">
+                                <input type="checkbox" name="indicator" value="longshortratio" data-source="external">
+                                <span class="chk-box"></span>
+                            </label>
+                        </div>
+                    </label>
+
+                    <label class="ind-row">
+                        <div class="ind-left"><span class="ind-title">Fear & Greed Index</span></div>
+                        <div class="ind-right">
+                            <label class="chk">
+                                <input type="checkbox" name="indicator" value="feargreedindex" data-source="external">
+                                <span class="chk-box"></span>
+                            </label>
+                        </div>
+                    </label>
+                </fieldset>
+            </div>
+
+            <div class="form-footer">
+                <!-- <div class="realized">
+                    <label for="realized-url">Optional: realized_cap URL (CSV/JSON)</label>
+                    <input id="realized-url" type="url" placeholder="https://... (opcjonalnie)">
+                    <label for="realized-file">Or upload realized_cap file</label>
+                    <input id="realized-file" type="file" accept=".json,.csv">
+                </div> -->
+
+                <div class="submit-wrap">
+                    <button type="submit" class="primary">Oblicz</button>
+                </div>
+            </div>
         </form>
+
+
 
         <div id="portfolio-result" class="portfolio-table"></div>
     </div>
 
     <script src="/js/sidebarLoader.js"></script>
+    <script src="/js/analyzer.js"></script>
 
 </body>
 
