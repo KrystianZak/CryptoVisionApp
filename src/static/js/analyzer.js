@@ -1,108 +1,140 @@
-// static/js/analyzer.js
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("analyzer-form");
-  const resultContainer = document.getElementById("portfolio-result");
+document.addEventListener('DOMContentLoaded', () => {
 
-  // mapa akcji - możesz zastąpić zwracaniem Promise (async)
-  const componentActions = {
-    mvrv: async () => {
-      console.log("🔵 Liczę MVRV...");
-      // przykład async (np. fetch do API) -> możesz to zamienić na sync
-      await sleep(120);
-      return { name: "MVRV", value: (Math.random() * 0.5 + 0.5).toFixed(2) };
-    },
+  // =========================
+  // Zmienne true / false
+  // =========================
+  let mvrv = false;
+  let nupl = false;
+  let sopr = false;
+  let macd = false;
+  let rsi = false;
+  let standardDeviation = false;
+  let longShortRatio = false;
+  let fearGreedIndex = false;
 
-    nupl: async () => {
-      console.log("🟣 Liczę NUPL...");
-      await sleep(120);
-      return { name: "NUPL", value: (Math.random() * 2 - 1).toFixed(2) };
-    },
+  // =========================
+  // Elementy formularza
+  // =========================
+  const form = document.getElementById('analyzer-form');
+  const saveButton = document.getElementById('save-preset');
+  const resultBox = document.getElementById('portfolio-result');
 
-    sharpe: async () => {
-      console.log("🟢 Liczę Sharpe Ratio...");
-      await sleep(120);
-      return { name: "Sharpe Ratio", value: (Math.random() * 3).toFixed(2) };
-    },
+  // =========================
+  // Checkboxy
+  // =========================
+  const checkbox_mvrv = document.querySelector('input[value="mvrv"]');
+  const checkbox_nupl = document.querySelector('input[value="nupl"]');
+  const checkbox_sopr = document.querySelector('input[value="sopr"]');
+  const checkbox_macd = document.querySelector('input[value="macd"]');
+  const checkbox_rsi = document.querySelector('input[value="rsi"]');
+  const checkbox_sdeviation = document.querySelector('input[value="standarddeviation"]');
+  const checkbox_longshort = document.querySelector('input[value="longshortratio"]');
+  const checkbox_feargreed = document.querySelector('input[value="feargreedindex"]');
 
-    totalmarketcap: async () => {
-      console.log("🟠 Liczę Total Market Cap...");
-      await sleep(120);
-      return { name: "Total Market Cap", value: (Math.random() * 1000).toFixed(0) + "B" };
-    }
-  };
-
-  // helper - małe opóźnienie do demo/imitacji fetch
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  // =========================
+  // Aktualizacja zmiennych
+  // =========================
+  function updateCheckboxes() {
+    mvrv = checkbox_mvrv.checked;
+    nupl = checkbox_nupl.checked;
+    sopr = checkbox_sopr.checked;
+    macd = checkbox_macd.checked;
+    rsi = checkbox_rsi.checked;
+    standardDeviation = checkbox_sdeviation.checked;
+    longShortRatio = checkbox_longshort.checked;
+    fearGreedIndex = checkbox_feargreed.checked;
   }
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  // Każdy checkbox aktualizuje zmienne
+  const allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+  allCheckboxes.forEach(cb => {
+    cb.addEventListener('change', updateCheckboxes);
+  });
 
-    // 1) pobierz zaznaczone checkboxy
-    const checked = Array.from(
-      document.querySelectorAll('#analyzer-form input[type="checkbox"]:checked')
-    ).map(cb => cb.value);
+  // =========================
+  // SAVE (tylko zapis – debug)
+  // =========================
+  saveButton.addEventListener('click', () => {
+    updateCheckboxes();
 
-    if (checked.length === 0) {
-      // zamiast alert możesz wyświetlić komunikat w DOM
-      alert("Zaznacz przynajmniej jeden komponent do analizy.");
+    const presetName = document.getElementById('preset-name').value.trim();
+    if (!presetName) {
+      alert('Podaj nazwę presetu!');
       return;
     }
 
-    console.log("Zaznaczone komponenty:", checked);
+    const timeframe = document.getElementById('timeframe').value;
 
-    // 2) wywołujemy tylko funkcje powiązane z zaznaczonymi komponentami
-    // obsługujemy zarówno sync jak i async (Promise)
-    const promises = checked.map(key => {
-      const fn = componentActions[key];
-      if (!fn) {
-        console.warn("Brak implementacji dla:", key);
-        return Promise.resolve({ name: key, value: "brak implementacji" });
-      }
-      try {
-        return Promise.resolve(fn());
-      } catch (err) {
-        console.error("Błąd w funkcji komponentu", key, err);
-        return Promise.resolve({ name: key, value: "error" });
-      }
+    console.log('SAVE PRESET:', {
+      presetName,
+      timeframe,
+      mvrv,
+      nupl,
+      sopr,
+      macd,
+      rsi,
+      standardDeviation,
+      longShortRatio,
+      fearGreedIndex
     });
 
-    // 3) czekamy na wszystkie wyniki
-    const results = await Promise.all(promises);
-
-    // 4) renderujemy wynik
-    displayResults(results);
+    alert('Preset zapisany (na razie tylko console.log)');
   });
 
-  // funkcja renderująca wynik w #portfolio-result
-  function displayResults(results) {
-    resultContainer.innerHTML = ""; // czyścimy
+  // =========================
+  // OBIlicz (SUBMIT)
+  // =========================
+  form.addEventListener('submit', (e) => {
+    e.preventDefault(); // ⛔ brak reloadu
 
-    // prosty wrapper z responsywnymi boxami
-    const wrap = document.createElement("div");
-    wrap.className = "analysis-results";
+    updateCheckboxes();
 
-    results.forEach(r => {
-      const box = document.createElement("div");
-      box.className = "analysis-card";
-      box.innerHTML = `
-        <h3 class="analysis-title">${escapeHtml(r.name)}</h3>
-        <div class="analysis-value">${escapeHtml(String(r.value))}</div>
-      `;
-      wrap.appendChild(box);
+    const timeframe = document.getElementById('timeframe').value;
+
+    console.log('OBLICZ:', {
+      timeframe,
+      mvrv,
+      nupl,
+      sopr,
+      macd,
+      rsi,
+      standardDeviation,
+      longShortRatio,
+      fearGreedIndex
     });
 
-    resultContainer.appendChild(wrap);
-  }
+    resultBox.innerHTML = '';
 
-  // małe zabezpieczenie przed XSS przy wstawianiu stringów
-  function escapeHtml(str) {
-    return str
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
+    // =========================
+    // MVRV – najprościej jak się da
+    // =========================
+    if (mvrv === true) {
+      fetch('/api/mvrv', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ timeframe: timeframe })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (!data || !data.marketCapUSD) {
+            throw new Error('Nieprawidłowa odpowiedź API');
+          }
+
+          resultBox.innerHTML += `
+    <div>
+      <strong>MVRV:</strong> ${data.value}<br>
+      <small>Market Cap: ${data.marketCapUSD.toLocaleString()} USD</small><br>
+      <small>Realized Cap: ${data.realizedCapUSD.toLocaleString()} USD</small>
+    </div>
+  `;
+        })
+
+        .catch(error => {
+          console.error(error);
+          resultBox.innerHTML += '<div style="color:red">Błąd MVRV</div>';
+        });
+    }
+
+  });
+
 });
