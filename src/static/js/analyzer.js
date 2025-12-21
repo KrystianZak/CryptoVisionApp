@@ -45,14 +45,13 @@ document.addEventListener('DOMContentLoaded', () => {
     fearGreedIndex = checkbox_feargreed.checked;
   }
 
-  // Każdy checkbox aktualizuje zmienne
   const allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
   allCheckboxes.forEach(cb => {
     cb.addEventListener('change', updateCheckboxes);
   });
 
   // =========================
-  // SAVE (tylko zapis – debug)
+  // SAVE (debug)
   // =========================
   saveButton.addEventListener('click', () => {
     updateCheckboxes();
@@ -69,69 +68,78 @@ document.addEventListener('DOMContentLoaded', () => {
       presetName,
       timeframe,
       mvrv,
-      nupl,
-      sopr,
-      macd,
-      rsi,
-      standardDeviation,
-      longShortRatio,
-      fearGreedIndex
+      nupl
     });
 
     alert('Preset zapisany (na razie tylko console.log)');
   });
 
   // =========================
-  // OBIlicz (SUBMIT)
+  // OBLICZ
   // =========================
   form.addEventListener('submit', (e) => {
-    e.preventDefault(); // ⛔ brak reloadu
+    e.preventDefault();
 
     updateCheckboxes();
-
     const timeframe = document.getElementById('timeframe').value;
-
-    console.log('OBLICZ:', {
-      timeframe,
-      mvrv,
-      nupl,
-      sopr,
-      macd,
-      rsi,
-      standardDeviation,
-      longShortRatio,
-      fearGreedIndex
-    });
 
     resultBox.innerHTML = '';
 
     // =========================
-    // MVRV – najprościej jak się da
+    // MVRV
     // =========================
     if (mvrv === true) {
       fetch('/api/mvrv', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ timeframe: timeframe })
+        body: JSON.stringify({ timeframe })
       })
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
-          if (!data || !data.marketCapUSD) {
-            throw new Error('Nieprawidłowa odpowiedź API');
+          if (!data || data.value === undefined) {
+            throw new Error('Błędne dane MVRV');
           }
 
           resultBox.innerHTML += `
-    <div>
-      <strong>MVRV:</strong> ${data.value}<br>
-      <small>Market Cap: ${data.marketCapUSD.toLocaleString()} USD</small><br>
-      <small>Realized Cap: ${data.realizedCapUSD.toLocaleString()} USD</small>
-    </div>
-  `;
+            <div>
+              <strong>MVRV:</strong> ${data.value}<br>
+              <small>Market Cap: ${data.marketCapUSD.toLocaleString()} USD</small><br>
+              <small>Realized Cap: ${data.realizedCapUSD.toLocaleString()} USD</small>
+            </div>
+          `;
         })
-
-        .catch(error => {
-          console.error(error);
+        .catch(err => {
+          console.error(err);
           resultBox.innerHTML += '<div style="color:red">Błąd MVRV</div>';
+        });
+    }
+
+    // =========================
+    // NUPL
+    // =========================
+    if (nupl === true) {
+      fetch('/api/nupl', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ timeframe })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (!data || data.value === undefined) {
+            throw new Error('Błędne dane NUPL');
+          }
+
+          resultBox.innerHTML += `
+            <div>
+              <strong>NUPL:</strong> ${data.value}<br>
+              <small>Market Cap: ${data.marketCapUSD.toLocaleString()} USD</small><br>
+              <small>Realized Cap: ${data.realizedCapUSD.toLocaleString()} USD</small>
+            </div>
+          `;
+        })
+        .catch(err => {
+          console.error(err);
+          resultBox.innerHTML += '<div style="color:red">Błąd NUPL</div>';
         });
     }
 

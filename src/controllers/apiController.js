@@ -1,5 +1,7 @@
 const { getCryptoListings } = require('../services/coinmarketcapService');
 const { calculateMVRV } = require('../algorithms/mvrv');
+const { calculateNUPL } = require('../algorithms/nupl');
+
 
 exports.getCryptoData = async (req, res) => {
   try {
@@ -19,5 +21,16 @@ exports.getMVRV = async (req, res) => {
   } catch (error) {
     console.error('Błąd liczenia MVRV:', error);
     res.status(500).json({ error: 'Błąd obliczania MVRV' });
+  }
+};
+
+exports.getNUPL = async (req, res) => {
+  try {
+    const { timeframe } = req.body;
+    const result = await calculateNUPL(timeframe);
+    res.json(result);
+  } catch (error) {
+    console.error('Błąd liczenia NUPL:', error);
+    res.status(500).json({ error: 'Błąd obliczania NUPL' });
   }
 };

@@ -1,10 +1,29 @@
-// static/js/indicators/nupl.js
+const { getBitcoinMarketData } = require('../services/coingeckoService');
 
-function calculateNUPL(timeframe) {
-  console.log("Liczenie NUPL dla timeframe:", timeframe)
+async function calculateNUPL(timeframe) {
+  console.log('START NUPL', timeframe);
+
+  const btcData = await getBitcoinMarketData();
+
+  const marketCap = btcData.market_data?.market_cap?.usd;
+  if (!marketCap) {
+    throw new Error('Brak market cap');
+  }
+
+  // Proxy realized cap – ta sama logika co w MVRV
+  const realizedCap = marketCap * 0.7;
+
+  const nupl = (marketCap - realizedCap) / marketCap;
 
   return {
-    indicator: "NUPL",
-    value: 0.45
-  }
+    indicator: 'NUPL',
+    timeframe,
+    value: Number(nupl.toFixed(3)),
+    marketCapUSD: Math.round(marketCap),
+    realizedCapUSD: Math.round(realizedCap)
+  };
 }
+
+module.exports = {
+  calculateNUPL
+};
