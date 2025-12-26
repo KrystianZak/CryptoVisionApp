@@ -1,148 +1,286 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // =========================
-  // Zmienne true / false
+  // GLOBALNY STAN ANALIZY
+  // =========================
+  let analysisResult = {
+    meta: {},
+    indicators: {}
+  };
+
+  // =========================
+  // FLAGS
   // =========================
   let mvrv = false;
   let nupl = false;
-  let sopr = false;
-  let macd = false;
   let rsi = false;
-  let standardDeviation = false;
-  let longShortRatio = false;
-  let fearGreedIndex = false;
+  let zscore = false;
+  let longShort = false;
+  let fearGreed = false;
 
   // =========================
-  // Elementy formularza
+  // ELEMENTY
   // =========================
   const form = document.getElementById('analyzer-form');
   const saveButton = document.getElementById('save-preset');
   const resultBox = document.getElementById('portfolio-result');
 
   // =========================
-  // Checkboxy
+  // CHECKBOXY
   // =========================
   const checkbox_mvrv = document.querySelector('input[value="mvrv"]');
   const checkbox_nupl = document.querySelector('input[value="nupl"]');
-  const checkbox_sopr = document.querySelector('input[value="sopr"]');
-  const checkbox_macd = document.querySelector('input[value="macd"]');
   const checkbox_rsi = document.querySelector('input[value="rsi"]');
-  const checkbox_sdeviation = document.querySelector('input[value="standarddeviation"]');
+  const checkbox_zscore = document.querySelector('input[value="standarddeviation"]');
   const checkbox_longshort = document.querySelector('input[value="longshortratio"]');
   const checkbox_feargreed = document.querySelector('input[value="feargreedindex"]');
 
-  // =========================
-  // Aktualizacja zmiennych
-  // =========================
   function updateCheckboxes() {
-    mvrv = checkbox_mvrv.checked;
-    nupl = checkbox_nupl.checked;
-    sopr = checkbox_sopr.checked;
-    macd = checkbox_macd.checked;
-    rsi = checkbox_rsi.checked;
-    standardDeviation = checkbox_sdeviation.checked;
-    longShortRatio = checkbox_longshort.checked;
-    fearGreedIndex = checkbox_feargreed.checked;
+    mvrv = checkbox_mvrv?.checked || false;
+    nupl = checkbox_nupl?.checked || false;
+    rsi = checkbox_rsi?.checked || false;
+    zscore = checkbox_zscore?.checked || false;
+    longShort = checkbox_longshort?.checked || false;
+    fearGreed = checkbox_feargreed?.checked || false;
   }
 
-  const allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
-  allCheckboxes.forEach(cb => {
-    cb.addEventListener('change', updateCheckboxes);
-  });
+  document
+    .querySelectorAll('input[type="checkbox"]')
+    .forEach(cb => cb.addEventListener('change', updateCheckboxes));
 
   // =========================
-  // SAVE (debug)
+  // SAVE PRESET (DEBUG)
   // =========================
   saveButton.addEventListener('click', () => {
     updateCheckboxes();
 
     const presetName = document.getElementById('preset-name').value.trim();
-    if (!presetName) {
-      alert('Podaj nazwę presetu!');
-      return;
-    }
-
     const timeframe = document.getElementById('timeframe').value;
 
     console.log('SAVE PRESET:', {
       presetName,
       timeframe,
       mvrv,
-      nupl
+      nupl,
+      rsi,
+      zscore,
+      longShort,
+      fearGreed
     });
-
-    alert('Preset zapisany (na razie tylko console.log)');
   });
 
   // =========================
   // OBLICZ
   // =========================
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
     updateCheckboxes();
-    const timeframe = document.getElementById('timeframe').value;
 
+    const timeframe = document.getElementById('timeframe').value;
     resultBox.innerHTML = '';
+
+    // reset stanu analizy
+    analysisResult = {
+      meta: {
+        timeframe,
+        createdAt: new Date().toISOString()
+      },
+      indicators: {}
+    };
 
     // =========================
     // MVRV
     // =========================
-    if (mvrv === true) {
-      fetch('/api/mvrv', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ timeframe })
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (!data || data.value === undefined) {
-            throw new Error('Błędne dane MVRV');
-          }
-
-          resultBox.innerHTML += `
-            <div>
-              <strong>MVRV:</strong> ${data.value}<br>
-              <small>Market Cap: ${data.marketCapUSD.toLocaleString()} USD</small><br>
-              <small>Realized Cap: ${data.realizedCapUSD.toLocaleString()} USD</small>
-            </div>
-          `;
-        })
-        .catch(err => {
-          console.error(err);
-          resultBox.innerHTML += '<div style="color:red">Błąd MVRV</div>';
+    if (mvrv) {
+      try {
+        const res = await fetch('/api/mvrv', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ timeframe })
         });
+        const data = await res.json();
+
+        // ✅ ZAPIS DO STANU
+        analysisResult.indicators.mvrv = {
+          value: data.value,
+          marketCap: data.marketCapUSD,
+          realizedCap: data.realizedCapUSD
+        };
+
+        resultBox.innerHTML += `
+          <div>
+            <strong>MVRV:</strong> ${data.value}
+          </div><hr>
+        `;
+      } catch {
+        resultBox.innerHTML += '<div style="color:red">Błąd MVRV</div><hr>';
+      }
     }
 
     // =========================
     // NUPL
     // =========================
-    if (nupl === true) {
-      fetch('/api/nupl', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ timeframe })
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (!data || data.value === undefined) {
-            throw new Error('Błędne dane NUPL');
-          }
-
-          resultBox.innerHTML += `
-            <div>
-              <strong>NUPL:</strong> ${data.value}<br>
-              <small>Market Cap: ${data.marketCapUSD.toLocaleString()} USD</small><br>
-              <small>Realized Cap: ${data.realizedCapUSD.toLocaleString()} USD</small>
-            </div>
-          `;
-        })
-        .catch(err => {
-          console.error(err);
-          resultBox.innerHTML += '<div style="color:red">Błąd NUPL</div>';
+    if (nupl) {
+      try {
+        const res = await fetch('/api/nupl', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ timeframe })
         });
+        const data = await res.json();
+
+        analysisResult.indicators.nupl = {
+          value: data.value,
+          marketCap: data.marketCapUSD,
+          realizedCap: data.realizedCapUSD
+        };
+
+        resultBox.innerHTML += `
+          <div>
+            <strong>NUPL:</strong> ${data.value}
+          </div><hr>
+        `;
+      } catch {
+        resultBox.innerHTML += '<div style="color:red">Błąd NUPL</div><hr>';
+      }
     }
 
+    // =========================
+    // RSI
+    // =========================
+    if (rsi) {
+      try {
+        const res = await fetch('/api/rsi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ timeframe })
+        });
+        const data = await res.json();
+
+        analysisResult.indicators.rsi = {
+          value: data.value,
+          period: data.period,
+          signal: data.signal
+        };
+
+        resultBox.innerHTML += `
+          <div>
+            <strong>RSI:</strong> ${data.value} (${data.signal})
+          </div><hr>
+        `;
+      } catch {
+        resultBox.innerHTML += '<div style="color:red">Błąd RSI</div><hr>';
+      }
+    }
+
+    // =========================
+    // Z-SCORE
+    // =========================
+    if (zscore) {
+      try {
+        const res = await fetch('/api/zscore', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ timeframe })
+        });
+        const data = await res.json();
+
+        analysisResult.indicators.zscore = {
+          value: data.value,
+          price: data.currentPrice,
+          mean: data.meanPrice,
+          stdDev: data.stdDev,
+          zone: data.zone
+        };
+
+        resultBox.innerHTML += `
+          <div>
+            <strong>Z-Score:</strong> ${data.value}
+          </div><hr>
+        `;
+      } catch {
+        resultBox.innerHTML += '<div style="color:red">Błąd Z-Score</div><hr>';
+      }
+    }
+
+    // =========================
+    // LONG / SHORT
+    // =========================
+    if (longShort) {
+      try {
+        const res = await fetch('/api/longshort', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ timeframe })
+        });
+        const data = await res.json();
+
+        analysisResult.indicators.longShort = {
+          zScore: data.zScore,
+          currentRatio: data.currentRatio,
+          mean: data.mean,
+          stdDev: data.stdDev,
+          zone: data.zone
+        };
+
+        resultBox.innerHTML += `
+          <div>
+            <strong>Long / Short:</strong> ${data.zScore}
+          </div><hr>
+        `;
+      } catch {
+        resultBox.innerHTML += '<div style="color:red">Błąd Long / Short</div><hr>';
+      }
+    }
+
+    // =========================
+    // FEAR & GREED
+    // =========================
+    if (fearGreed) {
+      try {
+        const res = await fetch('/api/feargreed', { method: 'POST' });
+        const data = await res.json();
+
+        analysisResult.indicators.fearGreed = {
+          value: data.value,
+          zScore: data.zScore,
+          zone: data.zone
+        };
+
+        resultBox.innerHTML += `
+          <div>
+            <strong>Fear & Greed:</strong> ${data.value} (${data.zone})
+          </div><hr>
+        `;
+      } catch {
+        resultBox.innerHTML += '<div style="color:red">Błąd Fear & Greed</div><hr>';
+      }
+    }
+
+    try {
+      const res = await fetch('/api/marketvaluation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(analysisResult)
+      });
+
+      const valuation = await res.json();
+
+      // zapis do stanu
+      analysisResult.marketValuation = valuation;
+
+      resultBox.innerHTML += `
+    <div style="padding:10px; background:#ED474A; border:1px solid #444">
+      <strong>Market Valuation:</strong><br>
+      Score: ${valuation.score}<br>
+      Status: <b>${valuation.valuation}</b>
+    </div><hr>
+  `;
+    } catch {
+      resultBox.innerHTML += '<div style="color:red">Błąd Market Valuation</div><hr>';
+    }
+    // 🔍 TERAZ MASZ WSZYSTKO W JEDNYM MIEJSCU
+    console.log('FINAL ANALYSIS RESULT:', analysisResult);
   });
 
 });

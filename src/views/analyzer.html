@@ -61,31 +61,10 @@
                         </div>
                     </label>
 
-                    <label class="ind-row">
-                        <div class="ind-left"><span class="ind-title">SOPR <small class="muted">on-chain</small></span>
-                        </div>
-                        <div class="ind-right">
-                            <label class="chk">
-                                <input type="checkbox" name="indicator" value="sopr" data-source="onchain">
-                                <span class="chk-box"></span>
-                            </label>
-                        </div>
-                    </label>
                 </fieldset>
 
                 <fieldset>
                     <legend>Technical</legend>
-
-                    <label class="ind-row">
-                        <div class="ind-left"><span class="ind-title">MACD <small class="muted">price</small></span>
-                        </div>
-                        <div class="ind-right">
-                            <label class="chk">
-                                <input type="checkbox" name="indicator" value="macd" data-source="price">
-                                <span class="chk-box"></span>
-                            </label>
-                        </div>
-                    </label>
 
                     <label class="ind-row">
                         <div class="ind-left"><span class="ind-title">RSI <small class="muted">price</small></span>
@@ -114,7 +93,7 @@
                     <legend>Additional resources</legend>
 
                     <label class="ind-row">
-                        <div class="ind-left"><span class="ind-title">Long / Short Ratio</span></div>
+                        <div class="ind-left"><span class="ind-title">Long / Short Ratio</span><small class="muted">sentiment</small></div>
                         <div class="ind-right">
                             <label class="chk">
                                 <input type="checkbox" name="indicator" value="longshortratio" data-source="external">
@@ -124,7 +103,7 @@
                     </label>
 
                     <label class="ind-row">
-                        <div class="ind-left"><span class="ind-title">Fear & Greed Index</span></div>
+                        <div class="ind-left"><span class="ind-title">Fear & Greed Index</span><small class="muted">sentiment</small></div>
                         <div class="ind-right">
                             <label class="chk">
                                 <input type="checkbox" name="indicator" value="feargreedindex" data-source="external">
@@ -136,20 +115,11 @@
             </div>
 
             <div class="form-footer">
-                <!-- <div class="realized">
-                    <label for="realized-url">Optional: realized_cap URL (CSV/JSON)</label>
-                    <input id="realized-url" type="url" placeholder="https://... (opcjonalnie)">
-                    <label for="realized-file">Or upload realized_cap file</label>
-                    <input id="realized-file" type="file" accept=".json,.csv">
-                </div> -->
-
                 <div class="submit-wrap">
                     <button type="submit" class="primary">Oblicz</button>
                 </div>
             </div>
         </form>
-
-
 
         <div id="portfolio-result" class="portfolio-table"></div>
     </div>
