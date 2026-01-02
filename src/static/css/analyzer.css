@@ -1,0 +1,215 @@
+/* =========================
+   CryptoVision - Analyzer UI
+   ========================= */
+
+.an-page .main-content {
+  padding: 22px;
+}
+
+.an-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.an-title {
+  margin: 0;
+  font-size: 34px;
+  letter-spacing: -0.3px;
+}
+
+.an-subtitle {
+  margin: 8px 0 0 0;
+  opacity: 0.8;
+  line-height: 1.45;
+}
+
+/* karta wrapper jak reszta */
+.an-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* poprawa form (u Ciebie już jest analyzer-form, ale dopinamy spójność) */
+.analyzer-form {
+  max-width: 1080px;
+  margin: 18px auto;
+}
+
+.analyzer-top {
+  gap: 18px;
+}
+
+.hint {
+  margin: 0 0 10px 0;
+}
+
+.tf-select {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.preset-area input {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.preset-area button {
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 10px;
+}
+
+/* wynik */
+.an-result {
+  max-width: 1080px;
+  margin: 18px auto 0 auto;
+  display: grid;
+  gap: 14px;
+}
+
+/* placeholder */
+.an-empty {
+  text-align: center;
+  padding: 26px 14px;
+  opacity: 0.9;
+}
+.an-empty__icon { font-size: 26px; margin-bottom: 10px; }
+.an-empty__title { font-weight: 800; margin-bottom: 6px; }
+.an-empty__text { opacity: 0.75; line-height: 1.35; }
+
+/* grid sekcji w wyniku */
+.an-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 14px;
+}
+@media (max-width: 980px){
+  .an-grid { grid-template-columns: 1fr; }
+}
+
+.an-section-title {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  opacity: 0.9;
+  font-weight: 800;
+}
+
+/* pill / badge */
+.an-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.15);
+  opacity: 0.95;
+  white-space: nowrap;
+}
+.an-pill--good {
+  border-color: rgba(0,255,140,0.35);
+  background: rgba(0,255,140,0.10);
+}
+.an-pill--bad {
+  border-color: rgba(255,70,70,0.45);
+  background: rgba(255,70,70,0.12);
+}
+.an-pill--neutral {
+  border-color: rgba(120,160,255,0.35);
+  background: rgba(120,160,255,0.09);
+}
+
+/* lista wyników indicatorów */
+.an-list {
+  display: grid;
+  gap: 10px;
+}
+.an-row {
+  display: grid;
+  grid-template-columns: 1fr 160px;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.12);
+}
+@media (max-width: 520px){
+  .an-row { grid-template-columns: 1fr; }
+}
+.an-row-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.an-row-title {
+  font-weight: 800;
+  opacity: 0.95;
+}
+.an-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  opacity: 0.8;
+  font-size: 12px;
+}
+.an-row-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* market valuation card */
+.an-valuation {
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.14);
+}
+
+.an-valuation-top {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.an-valuation-score {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.4px;
+}
+.an-valuation-sub {
+  opacity: 0.78;
+  font-size: 12px;
+}
+
+.an-kv {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+.an-kv-row {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.an-kv-key { opacity: 0.8; font-size: 12px; }
+.an-kv-val { font-weight: 800; font-variant-numeric: tabular-nums; }
+
+.an-muted {
+  opacity: 0.78;
+}

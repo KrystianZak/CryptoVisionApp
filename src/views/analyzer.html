@@ -5,15 +5,21 @@
     <meta charset="UTF-8">
     <title>Portfolio - CryptoVision</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/analyzer.css">
 </head>
 
-<body>
+<body class="an-page">
     <!--Tu załaduje się Sidebar-->
     <div id="sidebar"></div>
 
     <!--Tu załaduje się główna treść-->
     <div class="main-content">
-        <h1>Analyzer</h1>
+        <div class="an-header">
+  <div>
+    <h1 class="an-title">Analyzer</h1>
+    <p class="an-subtitle">Wybierz wskaźniki i wygeneruj market valuation na podstawie danych on-chain, price i sentiment.</p>
+  </div>
+</div>
 
         <form id="analyzer-form" class="analyzer-form">
             <div class="analyzer-top">
@@ -121,7 +127,7 @@
             </div>
         </form>
 
-        <div id="portfolio-result" class="portfolio-table"></div>
+       <div id="analyzer-result" class="an-result"></div>
     </div>
 
     <script src="/js/sidebarLoader.js"></script>
