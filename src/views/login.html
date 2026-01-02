@@ -1,40 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Login | CryptoVision</title>
-  <link rel="stylesheet" href="/css/style.css">
 
-  <style>
-    .login-logo {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      width: 120px;
-      height: auto;
-      z-index: 1000;
-    }
-  </style>
+  <link rel="stylesheet" href="/css/style.css" />
 </head>
+
 <body class="login-body">
-
-  <!-- Logo w lewym górnym rogu -->
-  <img src="/images/logo.png" alt="CryptoVision Logo" class="login-logo">
-
-  <div class="login-container">
-    <h2>Welcome Back</h2>
-    <p>Enter your email and password to sign in</p>
-    <form id="loginForm">
-      <input type="email" placeholder="Your email address" id="email" required />
-      <input type="password" placeholder="Your password" id="password" required />
-      <div>
-        <input type="checkbox" id="remember" />
-        <label for="remember">Remember me</label>
-      </div>
-      <button type="submit">SIGN IN</button>
-    </form>
-    <p>Don’t have an account? <a href="#">Sign up</a></p>
+  <!-- Logo (bez linka) -->
+  <div class="login-brand" aria-label="CryptoVision">
+    <img src="/images/logo.png" alt="CryptoVision Logo" class="login-logo" />
+    <span class="login-brand__name"></span>
   </div>
+
+  <!-- Dekor tła -->
+  <div class="login-bg" aria-hidden="true">
+    <div class="login-orb login-orb--1"></div>
+    <div class="login-orb login-orb--2"></div>
+    <div class="login-orb login-orb--3"></div>
+    <div class="login-grid"></div>
+  </div>
+
+  <!-- Główna karta -->
+  <main class="login-shell">
+    <section class="login-card" role="region" aria-label="Sign in">
+      <header class="login-header">
+        <div class="login-badge">Secure Access</div>
+        <h1 class="login-title">Welcome back</h1>
+        <p class="login-subtitle">Sign in to continue to your CryptoVision dashboard.</p>
+      </header>
+
+      <form id="loginForm" class="login-form" autocomplete="on">
+        <div class="login-field">
+          <label for="email">Email</label>
+          <div class="login-input">
+            <span class="login-input__icon" aria-hidden="true">
+              <img src="/images/koperta.svg" alt="" />
+            </span>
+            <input type="email" id="email" placeholder="name@example.com" required />
+          </div>
+        </div>
+
+        <div class="login-field">
+          <label for="password">Password</label>
+
+          <!-- ważne: to jest wrapper z position:relative -->
+          <div class="login-input login-input--password">
+            <span class="login-input__icon" aria-hidden="true">
+              <img src="/images/kłodka.svg" alt="" />
+            </span>
+
+            <input type="password" id="password" placeholder="••••••••" required />
+
+            <!-- eye jest absolutny -->
+            <button type="button" class="login-eye" id="togglePassword" aria-label="Show password">👁</button>
+          </div>
+        </div>
+
+        <div class="login-row">
+          <label class="login-check">
+            <input type="checkbox" id="remember" />
+            <span class="login-check__box" aria-hidden="true"></span>
+            <span>Remember me</span>
+          </label>
+
+          <a class="login-link" href="#" onclick="return false;">Forgot password?</a>
+        </div>
+
+        <div id="loginError" class="login-alert login-alert--hidden" role="alert"></div>
+
+        <button type="submit" class="login-btn" id="loginBtn">
+          <span class="login-btn__text">Sign in</span>
+          <span class="login-btn__spinner" aria-hidden="true"></span>
+        </button>
+
+        <p class="login-foot">
+          Don’t have an account?
+          <a class="login-link" href="#" onclick="return false;">Sign up</a>
+        </p>
+      </form>
+
+      <footer class="login-meta">
+        <span>© CryptoVision</span>
+        <span class="login-dot">•</span>
+        <span>Portfolio & Market Analyzer</span>
+      </footer>
+    </section>
+  </main>
 
   <script src="/js/login.js"></script>
 </body>
