@@ -553,3 +553,166 @@ body {
     gap: 20px;
   }
 }
+/* =========================
+   Home - Visualiser embed
+   ========================= */
+
+.home-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* zakres tylko dla wyniku visualisera na Home */
+.home-visualiser-scope .cv-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 700px) {
+  .home-visualiser-scope .cv-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+.home-visualiser-scope .cv-summary-card {
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.home-visualiser-scope .cv-summary-label {
+  opacity: 0.75;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.home-visualiser-scope .cv-summary-value {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+/* sekcje i tytuły */
+.home-visualiser-scope .cv-result-section {
+  margin-top: 14px;
+}
+
+.home-visualiser-scope .cv-section-title {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  opacity: 0.9;
+  font-weight: 700;
+}
+
+/* wykres słupkowy */
+.home-visualiser-scope .cv-bars {
+  display: grid;
+  gap: 10px;
+}
+
+.home-visualiser-scope .cv-bar-row {
+  display: grid;
+  grid-template-columns: 52px 1fr 56px;
+  gap: 10px;
+  align-items: center;
+}
+
+.home-visualiser-scope .cv-bar-track {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.home-visualiser-scope .cv-bar-fill {
+  height: 100%;
+  background: rgba(179, 136, 242, 0.55);
+  border-radius: 999px;
+}
+
+.home-visualiser-scope .cv-bar-label {
+  font-weight: 800;
+  opacity: 0.92;
+}
+
+.home-visualiser-scope .cv-bar-val {
+  text-align: right;
+  opacity: 0.82;
+  font-variant-numeric: tabular-nums;
+}
+
+/* tabela */
+.home-visualiser-scope .cv-table-wrap {
+  overflow: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.home-visualiser-scope .cv-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.home-visualiser-scope .cv-table th,
+.home-visualiser-scope .cv-table td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: left;
+  color: rgba(255,255,255,0.92);
+}
+
+.home-visualiser-scope .cv-table thead th {
+  opacity: 0.86;
+  font-size: 12px;
+}
+
+.home-visualiser-scope .cv-asset-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  font-weight: 700;
+}
+/* =========================
+   Home - Visualiser button
+   ========================= */
+
+.home-visualiser-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.home-open-visualiser-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+  background: linear-gradient(135deg, #6c5dd3, #b388f2);
+  box-shadow: 0 8px 20px rgba(108, 93, 211, 0.35);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+}
+
+.home-open-visualiser-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(108, 93, 211, 0.45);
+  opacity: 0.95;
+}
+
+.home-open-visualiser-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 14px rgba(108, 93, 211, 0.3);
+}

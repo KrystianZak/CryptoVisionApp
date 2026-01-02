@@ -9,12 +9,61 @@ document.addEventListener("DOMContentLoaded", () => {
   const alertBox = document.getElementById("form-alert");
   const submitBtn = document.getElementById("submit-btn");
   const autoSplitBtn = document.getElementById("auto-split");
+  const clearBtn = document.getElementById("clear-storage");
 
   const fmtUSD = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
+  // ====== Persistence ======
+  const STORAGE_KEY = "cryptovision_visualiser_state_v1";
+
+  function saveState() {
+    try {
+      const capital = document.getElementById("capital")?.value ?? "";
+      const selectedCoins = Array.from(coinsSelect.selectedOptions).map((o) => o.value);
+
+      const percents = {};
+      selectedCoins.forEach((coin) => {
+        const input = document.getElementById(`percent-${coin}`);
+        percents[coin] = input?.value ?? "";
+      });
+
+      const state = {
+        capital,
+        selectedCoins,
+        percents,
+        resultHTML: resultDiv?.innerHTML ?? "",
+      };
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      // localStorage może być zablokowany - ignorujemy
+    }
+  }
+
+  function loadState() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+
+  function clearState() {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      // ignorujemy
+    }
+  }
+
+  // ====== UI helpers ======
   function showAlert(message, type = "error") {
     alertBox.classList.remove("cv-alert--hidden", "cv-alert--error", "cv-alert--success", "cv-alert--info");
-    alertBox.classList.add(type === "success" ? "cv-alert--success" : type === "info" ? "cv-alert--info" : "cv-alert--error");
+    alertBox.classList.add(
+      type === "success" ? "cv-alert--success" : type === "info" ? "cv-alert--info" : "cv-alert--error"
+    );
     alertBox.textContent = message;
   }
 
@@ -52,7 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
     sumPill.textContent = `Suma: ${rounded}%`;
     remainingPill.textContent = `Pozostało: ${remaining}%`;
 
-    // Kolor “pigułek”
     sumPill.classList.remove("cv-pill--neutral", "cv-pill--good", "cv-pill--bad");
     remainingPill.classList.remove("cv-pill--neutral", "cv-pill--good", "cv-pill--bad");
 
@@ -85,6 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (selectedCoins.length === 0) {
       updatePills();
+      saveState();
       return;
     }
 
@@ -115,17 +164,23 @@ document.addEventListener("DOMContentLoaded", () => {
       percentagesContainer.appendChild(row);
 
       const input = row.querySelector(`#percent-${coin}`);
-      input.addEventListener("input", updatePills);
+
+      input.addEventListener("input", () => {
+        updatePills();
+        saveState();
+      });
+
       input.addEventListener("blur", () => {
-        // Lekka normalizacja: puste -> 0, max 2 miejsca po przecinku
         const v = parseFloat(input.value);
         if (!Number.isFinite(v)) input.value = "";
         else input.value = (Math.round(v * 100) / 100).toString();
         updatePills();
+        saveState();
       });
     });
 
     updatePills();
+    saveState();
   }
 
   function autoSplit() {
@@ -136,26 +191,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     hideAlert();
 
-    const base = Math.floor((100 / selectedCoins.length) * 100) / 100; // 2 miejsca
-    let sum = base * selectedCoins.length;
-    let diff = Math.round((100 - sum) * 100) / 100; // różnica do 100
+    const base = Math.floor((100 / selectedCoins.length) * 100) / 100;
+    const sum = base * selectedCoins.length;
+    const diff = Math.round((100 - sum) * 100) / 100;
 
     selectedCoins.forEach((coin, idx) => {
       const input = document.getElementById(`percent-${coin}`);
       if (!input) return;
 
       let value = base;
-      // dopnij różnicę do pierwszego elementu, żeby zawsze było 100
       if (idx === 0 && diff !== 0) value = Math.round((base + diff) * 100) / 100;
 
       input.value = value.toString();
     });
 
     updatePills();
+    saveState();
   }
 
   function renderResult(capital, allocations) {
-    // sort desc
     const sorted = allocations
       .map((a) => ({ ...a, percent: Math.round(a.percent * 100) / 100 }))
       .sort((a, b) => b.percent - a.percent);
@@ -231,8 +285,19 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   }
 
-  // Events
-  coinsSelect.addEventListener("change", buildAllocationInputs);
+  // ====== Events ======
+
+  const capitalInput = document.getElementById("capital");
+  if (capitalInput) {
+    capitalInput.addEventListener("input", saveState);
+    capitalInput.addEventListener("blur", saveState);
+  }
+
+  coinsSelect.addEventListener("change", () => {
+    buildAllocationInputs();
+    saveState();
+  });
+
   autoSplitBtn.addEventListener("click", autoSplit);
 
   form.addEventListener("submit", (e) => {
@@ -245,9 +310,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const { totalPercent, allocations } = readAllocations();
-
-    // tolerancja floatów (np. 99.999999)
     const rounded = Math.round(totalPercent * 100) / 100;
+
     if (rounded !== 100) {
       showAlert(`Suma procentów musi wynosić 100% (obecnie: ${rounded}%).`, "error");
       return;
@@ -256,8 +320,77 @@ document.addEventListener("DOMContentLoaded", () => {
     hideAlert();
     showAlert("Gotowe — wyliczono docelowe kwoty portfela.", "success");
     renderResult(capital, allocations);
+    saveState();
   });
 
-  // init
+  if (clearBtn) {
+    clearBtn.addEventListener("click", () => {
+      const ok = confirm(
+        "Czy na pewno chcesz wyczyścić zapisane dane Visualisera?\n\nKapitał, alokacje i wynik zostaną usunięte."
+      );
+      if (!ok) return;
+
+      // 1) usuń zapis
+      clearState();
+
+      // 2) reset formularza i UI
+      form.reset();
+      percentagesContainer.innerHTML = "";
+      submitBtn.disabled = true;
+      hideAlert();
+
+      sumPill.textContent = "Suma: 0%";
+      remainingPill.textContent = "Pozostało: 100%";
+      sumPill.className = "cv-pill cv-pill--neutral";
+      remainingPill.className = "cv-pill cv-pill--neutral";
+
+      // 3) pusty wynik
+      resultDiv.innerHTML = `
+        <div class="cv-empty">
+          <div class="cv-empty__icon">📊</div>
+          <div class="cv-empty__title">Brak danych do wyświetlenia</div>
+          <div class="cv-empty__text">Dane zostały wyczyszczone. Wprowadź nowe wartości, aby rozpocząć.</div>
+        </div>
+      `;
+
+      // UWAGA: nie wywołujemy saveState() tutaj — bo to by znowu zapisało pusty wynik.
+    });
+  }
+
+  // ====== init (restore state) ======
+  const state = loadState();
+
+  // najpierw zbuduj UI bez stanu
   buildAllocationInputs();
+
+  // potem przywróć
+  if (state) {
+    if (capitalInput && typeof state.capital === "string") {
+      capitalInput.value = state.capital;
+    }
+
+    if (Array.isArray(state.selectedCoins)) {
+      Array.from(coinsSelect.options).forEach((opt) => {
+        opt.selected = state.selectedCoins.includes(opt.value);
+      });
+    }
+
+    buildAllocationInputs();
+
+    if (state.percents && typeof state.percents === "object") {
+      Object.entries(state.percents).forEach(([coin, value]) => {
+        const input = document.getElementById(`percent-${coin}`);
+        if (input) input.value = value ?? "";
+      });
+    }
+
+    if (typeof state.resultHTML === "string" && state.resultHTML.trim().length > 0) {
+      resultDiv.innerHTML = state.resultHTML;
+    }
+
+    updatePills();
+  }
+
+  // final save
+  saveState();
 });
