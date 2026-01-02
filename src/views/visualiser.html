@@ -2,48 +2,95 @@
 <html lang="pl">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Portfolio - CryptoVision</title>
-    <link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portfolio Visualiser - CryptoVision</title>
+  <link rel="stylesheet" href="/css/style.css" />
 </head>
 
-<body>
-    <!--Tu załaduje się Sidebar-->
-    <div id="sidebar"></div>
+<body class="cv-page">
+  <!-- Tu załaduje się Sidebar -->
+  <div id="sidebar"></div>
 
-    <!--Tu załaduje się główna treść-->
-    <div class="main-content">
-        <h1>Portfolio Visualiser</h1>
-
-        <form id="portfolio-form">
-            <div class="form-group">
-                <label for="capital">Podaj kwotę (USD):</label>
-                <input type="number" id="capital" name="capital" required>
-            </div>
-
-            <div class="form-group">
-                <label for="coins">Wybierz kryptowaluty:</label>
-                <select id="coins" name="coins" multiple required>
-                    <option value="BTC">Bitcoin (BTC)</option>
-                    <option value="ETH">Ethereum (ETH)</option>
-                    <option value="SOL">Solana (SOL)</option>
-                    <option value="BNB">Binance Coin (BNB)</option>
-                    <option value="ADA">Cardano (ADA)</option>
-                </select>
-                <small>Przytrzymaj Ctrl, aby wybrać kilka</small>
-            </div>
-
-            <div id="percentages-container"></div>
-
-            <button type="submit">Oblicz</button>
-        </form>
-
-        <div id="portfolio-result" class="portfolio-table"></div>
+  <!-- Główna treść -->
+  <div class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Portfolio Visualiser</h1>
+        <p class="page-subtitle">Zbuduj docelową alokację portfela i policz kwoty dla każdej kryptowaluty.</p>
+      </div>
     </div>
 
-    <script src="/js/sidebarLoader.js"></script>
-    <script src="/js/visualiser.js"></script>
+    <div class="cv-grid">
+      <!-- Lewy panel: formularz -->
+      <section class="cv-card">
+        <div class="cv-card__header">
+          <h2 class="cv-card__title">Ustawienia portfela</h2>
+          <p class="cv-card__hint">Wybierz aktywa i przypisz procenty (łącznie 100%).</p>
+        </div>
 
+        <form id="portfolio-form" class="cv-form">
+          <div class="cv-form-row">
+            <div class="form-group">
+              <label for="capital">Kapitał (USD)</label>
+              <input type="number" id="capital" name="capital" min="0" step="0.01" placeholder="np. 10000" required>
+              <small class="cv-help">Wprowadź całkowitą kwotę, którą chcesz rozdzielić.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="coins">Aktywa</label>
+              <select id="coins" name="coins" multiple required>
+                <option value="BTC">Bitcoin (BTC)</option>
+                <option value="ETH">Ethereum (ETH)</option>
+                <option value="SOL">Solana (SOL)</option>
+                <option value="BNB">Binance Coin (BNB)</option>
+                <option value="ADA">Cardano (ADA)</option>
+              </select>
+              <small class="cv-help">Przytrzymaj <b>Ctrl</b>, aby wybrać kilka.</small>
+            </div>
+          </div>
+
+          <div class="cv-divider"></div>
+
+          <div class="cv-alloc-header">
+            <h3 class="cv-alloc-title">Alokacja</h3>
+            <div class="cv-alloc-meta">
+              <span id="sum-pill" class="cv-pill cv-pill--neutral">Suma: 0%</span>
+              <span id="remaining-pill" class="cv-pill cv-pill--neutral">Pozostało: 100%</span>
+            </div>
+          </div>
+
+          <div id="percentages-container" class="cv-alloc-list"></div>
+
+          <div id="form-alert" class="cv-alert cv-alert--hidden" role="alert"></div>
+
+          <div class="cv-actions">
+            <button type="button" id="auto-split" class="cv-btn cv-btn--ghost">Auto-rozłóż</button>
+            <button type="submit" id="submit-btn" class="cv-btn cv-btn--primary" disabled>Oblicz</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Prawy panel: wynik -->
+      <section class="cv-card">
+        <div class="cv-card__header">
+          <h2 class="cv-card__title">Wynik</h2>
+          <p class="cv-card__hint">Podsumowanie, tabela oraz wizualizacja alokacji.</p>
+        </div>
+
+        <div id="portfolio-result" class="cv-result">
+          <div class="cv-empty">
+            <div class="cv-empty__icon">📊</div>
+            <div class="cv-empty__title">Brak danych do wyświetlenia</div>
+            <div class="cv-empty__text">Uzupełnij kapitał, wybierz aktywa i wpisz procenty, a następnie kliknij Oblicz.</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="/js/sidebarLoader.js"></script>
+  <script src="/js/visualiser.js"></script>
 </body>
 
 </html>
