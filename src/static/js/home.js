@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     card.innerHTML = `
                         <div class="crypto-header">
                             <div class="crypto-icon">
-                                <img src="./images/${symbol.toLowerCase()}.svg" alt="${symbol}" class="coin-icon">
+                                <img src="/images/crypto-icons/${symbol.toLowerCase()}.png" alt="${symbol}" class="coin-icon">
                             </div>
                             <div class="crypto-info">
                                 <div class="crypto-pair">

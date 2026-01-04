@@ -194,7 +194,7 @@ body {
   transition: all 0.3s ease;
 }
 
-.main-card:hover{
+.main-card:hover {
   transform: translateY(-5px);
   border-color: rgba(102, 126, 234, 0.5);
   box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
@@ -240,7 +240,7 @@ body {
   transition: all 0.3s ease;
 }
 
-.balance-card:hover{
+.balance-card:hover {
   transform: translateY(-5px);
   border-color: rgba(102, 126, 234, 0.5);
   box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
@@ -393,6 +393,7 @@ body {
 .crypto-header {
   display: flex;
   align-items: flex-start;
+  flex-wrap: wrap;
   gap: 18px;
   margin-bottom: 24px;
 }
@@ -401,7 +402,7 @@ body {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: #f7931a; /* Bitcoin orange */
+  background: #131933;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -409,15 +410,14 @@ body {
 }
 
 .coin-icon {
-  width: 24px;
-  height: 24px;
-  filter: brightness(0) invert(1);
+  width: 34px;
+  height: 34px;
 }
 
 .crypto-info {
   flex: 1;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -519,7 +519,7 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 15px;
   }
-  
+
   .main-content {
     gap: 30px;
   }
@@ -548,7 +548,7 @@ body {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
-  
+
   .main-content {
     gap: 20px;
   }
@@ -627,7 +627,7 @@ body {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .home-visualiser-scope .cv-bar-fill {
@@ -664,7 +664,7 @@ body {
   padding: 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   text-align: left;
-  color: rgba(255,255,255,0.92);
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .home-visualiser-scope .cv-table thead th {
@@ -678,7 +678,7 @@ body {
   padding: 6px 10px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   font-weight: 700;
 }
 /* =========================
