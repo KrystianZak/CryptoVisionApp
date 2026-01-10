@@ -1,57 +1,60 @@
-// src/services/coingeckoService.js
-const axios = require('axios');
+// src/algorithms/rsi.js
+const { getBTCPrices } = require('../services/coingeckoService');
 
-// ================================
-// 1️⃣ DANE BTC – market cap, supply itd. (MVRV, NUPL)
-// ================================
-async function getBitcoinMarketData() {
-  const response = await axios.get(
-    'https://api.coingecko.com/api/v3/coins/bitcoin',
-    {
-      params: {
-        localization: false,
-        tickers: false,
-        market_data: true,
-        community_data: false,
-        developer_data: false,
-        sparkline: false
-      }
-    }
-  );
+const RSI_PERIOD = 14;
+const MIN_RSI_POINTS = 50;
 
-  return response.data;
-}
+function calculateRSIFromPrices(prices, period = RSI_PERIOD) {
+  let gains = 0;
+  let losses = 0;
 
-// ================================
-// 2️⃣ CENY BTC – do RSI (BTC/USDT ≈ BTC/USD)
-// ================================
-async function getBTCPrices(days = 30) {
-  const response = await axios.get(
-    'https://api.coingecko.com/api/v3/coins/bitcoin/market_chart',
-    {
-      params: {
-        vs_currency: 'usd',
-        days: days,
-        interval: 'daily'
-      },
-      headers: {
-        'User-Agent': 'CryptoVisionApp/1.0'
-      }
-    }
-  );
+  const recent = prices.slice(-(period + 1));
 
-  if (!response.data || !Array.isArray(response.data.prices)) {
-    throw new Error('Brak danych prices z CoinGecko');
+  for (let i = 1; i < recent.length; i++) {
+    const diff = recent[i] - recent[i - 1];
+    if (diff > 0) gains += diff;
+    else losses += Math.abs(diff);
   }
 
-  return response.data.prices.map(p => p[1]);
+  const avgGain = gains / period;
+  const avgLoss = losses / period;
+
+  if (avgLoss === 0) return 100;
+
+  const rs = avgGain / avgLoss;
+  const rsi = 100 - (100 / (1 + rs));
+
+  return Number(rsi.toFixed(2));
 }
 
+async function calculateRSI(timeframe) {
+  const daysMap = {
+    '1D': 7,
+    '7D': 14,
+    '1M': 30,
+    '3M': 90
+  };
 
-// ================================
-// EXPORT
-// ================================
-module.exports = {
-  getBitcoinMarketData,
-  getBTCPrices
-};
+  const days = Math.max(daysMap[timeframe] || 30, MIN_RSI_POINTS);
+  const prices = await getBTCPrices(days);
+
+  if (!prices || prices.length < MIN_RSI_POINTS) {
+    throw new Error('Za mało danych do RSI');
+  }
+
+  const value = calculateRSIFromPrices(prices, RSI_PERIOD);
+
+  let signal = 'neutral';
+  if (value >= 70) signal = 'overbought';
+  else if (value <= 30) signal = 'oversold';
+
+  return {
+    indicator: 'RSI',
+    timeframe,
+    period: RSI_PERIOD,
+    value,
+    signal
+  };
+}
+
+module.exports = { calculateRSI };

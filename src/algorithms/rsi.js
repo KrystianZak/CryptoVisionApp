@@ -1,64 +1,57 @@
-const { getBTCPrices } = require('../services/coingeckoService');
+const { getBTCPrices } = require('../services/marketDataService');
 
-function calculateRSIFromPrices(prices, period = 14) {
-    let gains = 0;
-    let losses = 0;
+const RSI_PERIOD = 14;
+const MIN_RSI_POINTS = 20;
 
-    const recent = prices.slice(-(period + 1));
+function calculateRSIFromPrices(prices, period = RSI_PERIOD) {
+  let gains = 0;
+  let losses = 0;
 
-    for (let i = 1; i < recent.length; i++) {
-        const diff = recent[i] - recent[i - 1];
-        if (diff > 0) gains += diff;
-        else losses += Math.abs(diff);
-    }
+  const recent = prices.slice(-(period + 1));
 
-    const avgGain = gains / period;
-    const avgLoss = losses / period;
+  for (let i = 1; i < recent.length; i++) {
+    const diff = recent[i] - recent[i - 1];
+    if (diff > 0) gains += diff;
+    else losses += Math.abs(diff);
+  }
 
-    if (avgLoss === 0) return 100;
+  const avgGain = gains / period;
+  const avgLoss = losses / period;
 
-    const rs = avgGain / avgLoss;
-    return Number((100 - 100 / (1 + rs)).toFixed(2));
+  if (avgLoss === 0) return 100;
+
+  const rs = avgGain / avgLoss;
+  return Number((100 - 100 / (1 + rs)).toFixed(2));
 }
 
 async function calculateRSI(timeframe) {
-    // RSI zawsze potrzebuje historii
-    const daysMap = {
-        '1D': 30,
-        '7D': 30,
-        '1M': 60,
-        '3M': 120
-    };
+  const daysMap = {
+    '1D': 2,
+    '7D': 7,
+    '1M': 30,
+    '3M': 90
+  };
 
-    const days = daysMap[timeframe] || 30;
+  const days = daysMap[timeframe] || 30;
+  const prices = await getBTCPrices(days);
 
+  if (!prices || prices.length < MIN_RSI_POINTS) {
+    throw new Error(`Za mało danych do RSI (${prices?.length ?? 0})`);
+  }
 
-    let prices;
-    try {
-        prices = await getBTCPrices(days);
-    } catch (e) {
-        console.error('CoinGecko prices error:', e.message);
-        throw new Error('Błąd pobierania cen BTC');
-    }
+  const value = calculateRSIFromPrices(prices);
 
-    if (!Array.isArray(prices) || prices.length < 20) {
-        throw new Error(`Za mało danych RSI (${prices?.length || 0})`);
-    }
+  let signal = 'neutral';
+  if (value >= 70) signal = 'overbought';
+  else if (value <= 30) signal = 'oversold';
 
-    const value = calculateRSIFromPrices(prices, 14);
-
-    let signal = 'neutral';
-    if (value > 70) signal = 'overbought';
-    else if (value < 30) signal = 'oversold';
-
-    return {
-        indicator: 'RSI',
-        pair: 'BTC/USDT',
-        timeframe,
-        period: 14,
-        value,
-        signal
-    };
+  return {
+    indicator: 'RSI',
+    timeframe,
+    period: RSI_PERIOD,
+    value,
+    signal
+  };
 }
 
 module.exports = { calculateRSI };

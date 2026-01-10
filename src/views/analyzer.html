@@ -15,11 +15,12 @@
     <!--Tu załaduje się główna treść-->
     <div class="main-content">
         <div class="an-header">
-  <div>
-    <h1 class="an-title">Analyzer</h1>
-    <p class="an-subtitle">Wybierz wskaźniki i wygeneruj market valuation na podstawie danych on-chain, price i sentiment.</p>
-  </div>
-</div>
+            <div>
+                <h1 class="an-title">Analyzer</h1>
+                <p class="an-subtitle">Wybierz wskaźniki i wygeneruj market valuation na podstawie danych on-chain,
+                    price i sentiment.</p>
+            </div>
+        </div>
 
         <form id="analyzer-form" class="analyzer-form">
             <div class="analyzer-top">
@@ -99,7 +100,8 @@
                     <legend>Additional resources</legend>
 
                     <label class="ind-row">
-                        <div class="ind-left"><span class="ind-title">Long / Short Ratio</span><small class="muted">sentiment</small></div>
+                        <div class="ind-left"><span class="ind-title">Long / Short Ratio</span><small
+                                class="muted">sentiment</small></div>
                         <div class="ind-right">
                             <label class="chk">
                                 <input type="checkbox" name="indicator" value="longshortratio" data-source="external">
@@ -109,7 +111,8 @@
                     </label>
 
                     <label class="ind-row">
-                        <div class="ind-left"><span class="ind-title">Fear & Greed Index</span><small class="muted">sentiment</small></div>
+                        <div class="ind-left"><span class="ind-title">Fear & Greed Index</span><small
+                                class="muted">sentiment</small></div>
                         <div class="ind-right">
                             <label class="chk">
                                 <input type="checkbox" name="indicator" value="feargreedindex" data-source="external">
@@ -127,7 +130,12 @@
             </div>
         </form>
 
-       <div id="analyzer-result" class="an-result"></div>
+        <div id="analyzer-result" class="an-result"></div>
+        
+        <button id="export-pdf" class="btn-secondary">
+            Export PDF
+        </button>
+
     </div>
 
     <script src="/js/sidebarLoader.js"></script>

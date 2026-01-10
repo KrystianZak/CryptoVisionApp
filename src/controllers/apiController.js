@@ -1,4 +1,5 @@
 const { getCryptoListings } = require('../services/coinmarketcapService');
+
 const { calculateMVRV } = require('../algorithms/mvrv');
 const { calculateNUPL } = require('../algorithms/nupl');
 const { calculateRSI } = require('../algorithms/rsi');
@@ -7,57 +8,57 @@ const { calculateLongShortZScore } = require('../algorithms/long&short-ratio');
 const { calculateFearGreed } = require('../algorithms/fear&greed');
 const { calculateMarketValuation } = require('../algorithms/marketValuation');
 
-
-
+/**
+ * Dashboard – not part of analysis pipeline
+ */
 exports.getCryptoData = async (req, res) => {
   try {
     const cryptoData = await getCryptoListings();
     res.json(cryptoData);
   } catch (error) {
-    console.error('Błąd w kontrolerze API:', error);
-    res.status(500).json({ error: 'Błąd serwera' });
+    console.error('API /crypto error:', error);
+    res.status(500).json({ error: 'Crypto dashboard error' });
   }
 };
 
 exports.getMVRV = async (req, res) => {
   try {
-    const { timeframe } = req.body;
-    const result = await calculateMVRV(timeframe);
+    // MVRV nie zależy od timeframe – liczone globalnie
+    const result = await calculateMVRV('GLOBAL');
     res.json(result);
   } catch (error) {
-    console.error('Błąd liczenia MVRV:', error);
-    res.status(500).json({ error: 'Błąd obliczania MVRV' });
+    console.error('MVRV error:', error);
+    res.status(500).json({ error: 'MVRV calculation error' });
   }
 };
 
+
 exports.getNUPL = async (req, res) => {
   try {
-    const { timeframe } = req.body;
-    const result = await calculateNUPL(timeframe);
+    // NUPL nie zależy od timeframe – liczone globalnie
+    const result = await calculateNUPL('GLOBAL');
     res.json(result);
   } catch (error) {
-    console.error('Błąd liczenia NUPL:', error);
-    res.status(500).json({ error: 'Błąd obliczania NUPL' });
+    console.error('NUPL error:', error);
+    res.status(500).json({ error: 'NUPL calculation error' });
   }
 };
+
 
 exports.getRSI = async (req, res) => {
   try {
     const { timeframe } = req.body;
-    console.log('RSI request timeframe:', timeframe);
-
     const result = await calculateRSI(timeframe);
     res.json(result);
-  } catch (e) {
-    console.error('RSI ERROR:', e.message);
-    res.status(500).json({ error: e.message });
+  } catch (error) {
+    console.error('RSI error:', error);
+    res.status(500).json({ error: 'RSI calculation error' });
   }
 };
 
 exports.getZScore = async (req, res) => {
   try {
     const { timeframe } = req.body;
-
     if (!timeframe) {
       return res.status(400).json({ error: 'Timeframe is required' });
     }
@@ -65,8 +66,8 @@ exports.getZScore = async (req, res) => {
     const result = await calculateZScore(timeframe);
     res.json(result);
   } catch (error) {
-    console.error('Błąd liczenia Z-Score:', error);
-    res.status(500).json({ error: 'Z-Score error' });
+    console.error('Z-Score error:', error);
+    res.status(500).json({ error: 'Z-Score calculation error' });
   }
 };
 
@@ -75,9 +76,9 @@ exports.getLongShort = async (req, res) => {
     const { timeframe } = req.body;
     const result = await calculateLongShortZScore(timeframe);
     res.json(result);
-  } catch (e) {
-    console.error('Long/Short error:', e);
-    res.status(500).json({ error: 'Long/Short error' });
+  } catch (error) {
+    console.error('Long/Short error:', error);
+    res.status(500).json({ error: 'Long/Short calculation error' });
   }
 };
 
@@ -85,9 +86,9 @@ exports.getFearGreed = async (req, res) => {
   try {
     const result = await calculateFearGreed();
     res.json(result);
-  } catch (e) {
-    console.error('FearGreed error:', e);
-    res.status(500).json({ error: 'Fear & Greed error' });
+  } catch (error) {
+    console.error('Fear & Greed error:', error);
+    res.status(500).json({ error: 'Fear & Greed calculation error' });
   }
 };
 
@@ -96,8 +97,8 @@ exports.getMarketValuation = async (req, res) => {
     const analysisResult = req.body;
     const result = calculateMarketValuation(analysisResult);
     res.json(result);
-  } catch (e) {
-    console.error('Market valuation error:', e);
+  } catch (error) {
+    console.error('Market valuation error:', error);
     res.status(500).json({ error: 'Market valuation error' });
   }
 };

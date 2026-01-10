@@ -1,26 +1,28 @@
-const { getBitcoinMarketData } = require('../services/coingeckoService');
+const { getBitcoinMarketData } = require('../services/marketDataService');
 
 async function calculateNUPL(timeframe) {
   console.log('START NUPL', timeframe);
 
   const btcData = await getBitcoinMarketData();
 
-  const marketCap = btcData.market_data?.market_cap?.usd;
-  if (!marketCap) {
-    throw new Error('Brak market cap');
+  const marketCap = btcData?.market_data?.market_cap?.usd;
+  if (!Number.isFinite(marketCap)) {
+    throw new Error('NUPL: Brak market cap');
   }
 
-  // Proxy realized cap – ta sama logika co w MVRV
+  // Proxy realized cap (świadome uproszczenie)
   const realizedCap = marketCap * 0.7;
 
-  const nupl = (marketCap - realizedCap) / marketCap;
+  const nuplRaw = (marketCap - realizedCap) / marketCap;
+  const nupl = Number(nuplRaw.toFixed(3));
 
   return {
     indicator: 'NUPL',
     timeframe,
-    value: Number(nupl.toFixed(3)),
+    value: nupl,
     marketCapUSD: Math.round(marketCap),
-    realizedCapUSD: Math.round(realizedCap)
+    realizedCapUSD: Math.round(realizedCap),
+    proxy: true // WAŻNE: jawne uproszczenie do pracy inżynierskiej
   };
 }
 

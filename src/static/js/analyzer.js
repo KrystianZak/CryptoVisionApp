@@ -1,11 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   // =========================
-  // GLOBALNY STAN ANALIZY
+  // GLOBAL STATE
   // =========================
-  let analysisResult = {
-    meta: {},
-    indicators: {},
-  };
+  let analysisResult = null;
 
   // =========================
   // FLAGS
@@ -18,14 +15,14 @@ document.addEventListener("DOMContentLoaded", () => {
   let fearGreed = false;
 
   // =========================
-  // ELEMENTY
+  // ELEMENTS
   // =========================
   const form = document.getElementById("analyzer-form");
-  const saveButton = document.getElementById("save-preset");
   const resultBox = document.getElementById("analyzer-result");
+  const exportBtn = document.getElementById("export-pdf");
 
   // =========================
-  // CHECKBOXY
+  // CHECKBOXES
   // =========================
   const checkbox_mvrv = document.querySelector('input[value="mvrv"]');
   const checkbox_nupl = document.querySelector('input[value="nupl"]');
@@ -35,425 +32,222 @@ document.addEventListener("DOMContentLoaded", () => {
   const checkbox_feargreed = document.querySelector('input[value="feargreedindex"]');
 
   function updateCheckboxes() {
-    mvrv = checkbox_mvrv?.checked || false;
-    nupl = checkbox_nupl?.checked || false;
-    rsi = checkbox_rsi?.checked || false;
-    zscore = checkbox_zscore?.checked || false;
-    longShort = checkbox_longshort?.checked || false;
-    fearGreed = checkbox_feargreed?.checked || false;
+    mvrv = checkbox_mvrv?.checked ?? false;
+    nupl = checkbox_nupl?.checked ?? false;
+    rsi = checkbox_rsi?.checked ?? false;
+    zscore = checkbox_zscore?.checked ?? false;
+    longShort = checkbox_longshort?.checked ?? false;
+    fearGreed = checkbox_feargreed?.checked ?? false;
   }
 
-  document.querySelectorAll('input[type="checkbox"]').forEach((cb) =>
-    cb.addEventListener("change", updateCheckboxes)
-  );
+  document
+    .querySelectorAll('input[type="checkbox"]')
+    .forEach(cb => cb.addEventListener("change", updateCheckboxes));
 
   // =========================
-  // UI: Placeholder
+  // FETCH HELPER
+  // =========================
+  async function fetchJSON(url, options = {}) {
+    const res = await fetch(url, options);
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return res.json();
+  }
+
+  // =========================
+  // UI HELPERS
   // =========================
   function renderEmpty() {
-    if (!resultBox) return;
     resultBox.innerHTML = `
       <div class="an-card an-empty">
-        <div class="an-empty__icon">📈</div>
         <div class="an-empty__title">Brak wyników</div>
-        <div class="an-empty__text">Zaznacz wskaźniki i kliknij „Oblicz”, aby zobaczyć analizę.</div>
+        <div class="an-empty__text">Zaznacz wskaźniki i kliknij „Oblicz”.</div>
       </div>
     `;
   }
 
-  // =========================
-  // RENDER HELPERS
-  // =========================
-  function pillClassForZone(zoneOrValuation = "") {
-    const z = String(zoneOrValuation).toLowerCase();
-
-    if (
-      z.includes("undervalu") ||
-      z.includes("buy") ||
-      z.includes("fear") ||
-      z.includes("low") ||
-      z.includes("accum") ||
-      z.includes("green")
-    )
-      return "an-pill--good";
-
-    if (
-      z.includes("overvalu") ||
-      z.includes("sell") ||
-      z.includes("greed") ||
-      z.includes("high") ||
-      z.includes("red") ||
-      z.includes("distribution")
-    )
-      return "an-pill--bad";
-
+  function pillClass(zone = "") {
+    const z = String(zone).toLowerCase();
+    if (z.includes("under") || z.includes("fear")) return "an-pill--good";
+    if (z.includes("over") || z.includes("greed")) return "an-pill--bad";
     return "an-pill--neutral";
   }
 
-  function formatMaybeNumber(v) {
+  function fmt(v) {
     const n = Number(v);
-    if (Number.isFinite(n)) return n.toFixed(2);
-    if (v === null || v === undefined || v === "") return "-";
-    return String(v);
+    return Number.isFinite(n) ? n.toFixed(2) : "—";
   }
 
   function renderAnalysis(state) {
-    if (!resultBox) return;
+    const rows = Object.entries(state.indicators).map(([key, d]) => {
+      if (!d) {
+        return `
+          <div class="an-row">
+            <div class="an-row-title">${key.toUpperCase()}</div>
+            <span class="an-pill an-pill--neutral">Brak danych</span>
+          </div>
+        `;
+      }
 
-    const tf = state?.meta?.timeframe ?? "-";
-    const created = state?.meta?.createdAt ? new Date(state.meta.createdAt).toLocaleString() : "-";
+      const label = d.signal || d.zone || "neutral";
+      const value =
+        key === "longShort" ? d.zScore :
+        key === "fearGreed" ? d.value :
+        d.value;
 
-    const indicators = state?.indicators ?? {};
-    const entries = Object.entries(indicators);
-
-    const titleMap = {
-      mvrv: "MVRV",
-      nupl: "NUPL",
-      rsi: "RSI",
-      zscore: "Z-Score",
-      longShort: "Long / Short Ratio",
-      fearGreed: "Fear & Greed Index",
-    };
-
-    const indicatorRows =
-      entries.length > 0
-        ? entries
-            .map(([key, data]) => {
-              const title = titleMap[key] ?? key;
-
-              // jeśli błąd
-              if (data?.error) {
-                return `
-                  <div class="an-row">
-                    <div class="an-row-left">
-                      <div class="an-row-title">${title}</div>
-                      <div class="an-row-meta">
-                        <span class="an-pill an-pill--bad">Błąd pobierania danych</span>
-                      </div>
-                    </div>
-                    <div class="an-row-right">
-                      <span class="an-pill an-pill--bad">—</span>
-                    </div>
-                  </div>
-                `;
-              }
-
-              // meta zależnie od typu
-              let metaHTML = "";
-
-              if (key === "mvrv" || key === "nupl") {
-                metaHTML = `
-                  <span class="an-pill an-pill--neutral">MarketCap: ${formatMaybeNumber(data.marketCap)}</span>
-                  <span class="an-pill an-pill--neutral">RealizedCap: ${formatMaybeNumber(data.realizedCap)}</span>
-                `;
-              } else if (key === "rsi") {
-                metaHTML = `
-                  <span class="an-pill an-pill--neutral">Period: ${formatMaybeNumber(data.period)}</span>
-                  <span class="an-pill ${pillClassForZone(data.signal)}">${String(data.signal ?? "-")}</span>
-                `;
-              } else if (key === "zscore") {
-                metaHTML = `
-                  <span class="an-pill an-pill--neutral">Price: ${formatMaybeNumber(data.price)}</span>
-                  <span class="an-pill ${pillClassForZone(data.zone)}">${String(data.zone ?? "-")}</span>
-                `;
-              } else if (key === "longShort") {
-                metaHTML = `
-                  <span class="an-pill an-pill--neutral">Ratio: ${formatMaybeNumber(data.currentRatio)}</span>
-                  <span class="an-pill ${pillClassForZone(data.zone)}">${String(data.zone ?? "-")}</span>
-                `;
-              } else if (key === "fearGreed") {
-                metaHTML = `
-                  <span class="an-pill ${pillClassForZone(data.zone)}">${String(data.zone ?? "-")}</span>
-                `;
-              }
-
-              const mainVal =
-                key === "fearGreed"
-                  ? formatMaybeNumber(data.value)
-                  : key === "longShort"
-                  ? formatMaybeNumber(data.zScore)
-                  : formatMaybeNumber(data.value);
-
-              return `
-                <div class="an-row">
-                  <div class="an-row-left">
-                    <div class="an-row-title">${title}</div>
-                    <div class="an-row-meta">${metaHTML}</div>
-                  </div>
-                  <div class="an-row-right">
-                    <span class="an-pill an-pill--neutral">Value: ${mainVal}</span>
-                  </div>
-                </div>
-              `;
-            })
-            .join("")
-        : `<div class="an-muted">Nie wybrano żadnych wskaźników.</div>`;
-
-    // Market valuation
-    const valuation = state?.marketValuation;
-
-    const valuationHTML = valuation?.error
-      ? `
-        <div class="an-card an-valuation">
-          <div class="an-muted">Błąd Market Valuation (API zwróciło błąd).</div>
-        </div>
-      `
-      : valuation
-      ? (() => {
-          const score = formatMaybeNumber(valuation.score);
-          const status = String(valuation.valuation ?? "-");
-          const cls = pillClassForZone(status);
-
-          return `
-            <div class="an-card an-valuation">
-              <div class="an-valuation-top">
-                <div>
-                  <div class="an-valuation-sub">Market valuation</div>
-                  <div class="an-valuation-score">${score}</div>
-                </div>
-                <span class="an-pill ${cls}">${status}</span>
-              </div>
-
-              <div class="an-kv">
-                <div class="an-kv-row">
-                  <div class="an-kv-key">Timeframe</div>
-                  <div class="an-kv-val">${tf}</div>
-                </div>
-                <div class="an-kv-row">
-                  <div class="an-kv-key">Generated</div>
-                  <div class="an-kv-val">${created}</div>
-                </div>
-                <div class="an-kv-row">
-                  <div class="an-kv-key">Indicators used</div>
-                  <div class="an-kv-val">${entries.length}</div>
-                </div>
-              </div>
-            </div>
-          `;
-        })()
-      : `
-        <div class="an-card an-valuation">
-          <div class="an-muted">Brak market valuation (brak danych lub nie kliknięto „Oblicz”).</div>
+      return `
+        <div class="an-row">
+          <div>
+            <div class="an-row-title">${key.toUpperCase()}</div>
+            <span class="an-pill ${pillClass(label)}">${label}</span>
+          </div>
+          <span class="an-pill">Value: ${fmt(value)}</span>
         </div>
       `;
+    }).join("");
+
+    const mv = state.marketValuation;
 
     resultBox.innerHTML = `
       <div class="an-grid">
         <div class="an-card">
-          <div class="an-section-title">Wyniki wskaźników</div>
-          <div class="an-list">${indicatorRows}</div>
+          <div class="an-section-title">Wyniki</div>
+          ${rows}
         </div>
 
-        <div>
-          ${valuationHTML}
+        <div class="an-card an-valuation">
+          <div class="an-valuation-score">${fmt(mv?.score)}</div>
+          <span class="an-pill ${pillClass(mv?.valuation)}">${mv?.valuation ?? "—"}</span>
         </div>
       </div>
     `;
   }
 
   // =========================
-  // SAVE PRESET (DEBUG)
-  // =========================
-  saveButton?.addEventListener("click", () => {
-    updateCheckboxes();
-
-    const presetName = document.getElementById("preset-name")?.value.trim();
-    const timeframe = document.getElementById("timeframe")?.value;
-
-    console.log("SAVE PRESET:", {
-      presetName,
-      timeframe,
-      mvrv,
-      nupl,
-      rsi,
-      zscore,
-      longShort,
-      fearGreed,
-    });
-  });
-
-  // =========================
-  // OBLICZ
+  // CALCULATE
   // =========================
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
     updateCheckboxes();
 
-    const timeframe = document.getElementById("timeframe")?.value || "7D";
+    const timeframe = document.getElementById("timeframe")?.value ?? "7D";
 
-    // reset stanu analizy
     analysisResult = {
-      meta: {
-        timeframe,
-        createdAt: new Date().toISOString(),
-      },
+      meta: { timeframe, createdAt: new Date().toISOString() },
       indicators: {},
+      marketValuation: null
     };
 
-    // loader prosty
-    resultBox.innerHTML = `
-      <div class="an-card">
-        <div class="an-section-title">Analiza w toku…</div>
-        <div class="an-muted">Pobieram dane dla wybranych wskaźników i wyliczam market valuation.</div>
-      </div>
-    `;
+    resultBox.innerHTML = `<div class="an-card">Analiza w toku…</div>`;
 
-    // =========================
-    // MVRV
-    // =========================
-    if (mvrv) {
-      try {
-        const res = await fetch("/api/mvrv", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ timeframe }),
-        });
-        const data = await res.json();
+    const jobs = [];
 
-        analysisResult.indicators.mvrv = {
-          value: data.value,
-          marketCap: data.marketCapUSD,
-          realizedCap: data.realizedCapUSD,
-        };
-      } catch {
-        analysisResult.indicators.mvrv = { error: true };
-      }
-    }
+    if (mvrv) jobs.push(fetchJSON("/api/mvrv", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ timeframe })
+    }).then(d => analysisResult.indicators.mvrv = d).catch(() => analysisResult.indicators.mvrv = null));
 
-    // =========================
-    // NUPL
-    // =========================
-    if (nupl) {
-      try {
-        const res = await fetch("/api/nupl", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ timeframe }),
-        });
-        const data = await res.json();
+    if (nupl) jobs.push(fetchJSON("/api/nupl", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ timeframe })
+    }).then(d => analysisResult.indicators.nupl = d).catch(() => analysisResult.indicators.nupl = null));
 
-        analysisResult.indicators.nupl = {
-          value: data.value,
-          marketCap: data.marketCapUSD,
-          realizedCap: data.realizedCapUSD,
-        };
-      } catch {
-        analysisResult.indicators.nupl = { error: true };
-      }
-    }
+    if (rsi) jobs.push(fetchJSON("/api/rsi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ timeframe })
+    }).then(d => analysisResult.indicators.rsi = d).catch(() => analysisResult.indicators.rsi = null));
 
-    // =========================
-    // RSI
-    // =========================
-    if (rsi) {
-      try {
-        const res = await fetch("/api/rsi", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ timeframe }),
-        });
-        const data = await res.json();
+    if (zscore) jobs.push(fetchJSON("/api/zscore", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ timeframe })
+    }).then(d => analysisResult.indicators.zscore = d).catch(() => analysisResult.indicators.zscore = null));
 
-        analysisResult.indicators.rsi = {
-          value: data.value,
-          period: data.period,
-          signal: data.signal,
-        };
-      } catch {
-        analysisResult.indicators.rsi = { error: true };
-      }
-    }
+    if (longShort) jobs.push(fetchJSON("/api/longshort", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ timeframe })
+    }).then(d => analysisResult.indicators.longShort = d).catch(() => analysisResult.indicators.longShort = null));
 
-    // =========================
-    // Z-SCORE
-    // =========================
-    if (zscore) {
-      try {
-        const res = await fetch("/api/zscore", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ timeframe }),
-        });
-        const data = await res.json();
+    if (fearGreed) jobs.push(fetchJSON("/api/feargreed", { method: "POST" })
+      .then(d => analysisResult.indicators.fearGreed = d)
+      .catch(() => analysisResult.indicators.fearGreed = null));
 
-        analysisResult.indicators.zscore = {
-          value: data.value,
-          price: data.currentPrice,
-          mean: data.meanPrice,
-          stdDev: data.stdDev,
-          zone: data.zone,
-        };
-      } catch {
-        analysisResult.indicators.zscore = { error: true };
-      }
-    }
+    await Promise.all(jobs);
 
-    // =========================
-    // LONG / SHORT
-    // =========================
-    if (longShort) {
-      try {
-        const res = await fetch("/api/longshort", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ timeframe }),
-        });
-        const data = await res.json();
+    analysisResult.marketValuation = await fetchJSON("/api/marketvaluation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(analysisResult)
+    }).catch(() => null);
 
-        analysisResult.indicators.longShort = {
-          zScore: data.zScore,
-          currentRatio: data.currentRatio,
-          mean: data.mean,
-          stdDev: data.stdDev,
-          zone: data.zone,
-        };
-      } catch {
-        analysisResult.indicators.longShort = { error: true };
-      }
-    }
-
-    // =========================
-    // FEAR & GREED
-    // =========================
-    if (fearGreed) {
-      try {
-        const res = await fetch("/api/feargreed", { method: "POST" });
-        const data = await res.json();
-
-        analysisResult.indicators.fearGreed = {
-          value: data.value,
-          zScore: data.zScore,
-          zone: data.zone,
-        };
-      } catch {
-        analysisResult.indicators.fearGreed = { error: true };
-      }
-    }
-
-    // =========================
-    // MARKET VALUATION (z całego state)
-    // =========================
-    try {
-      const res = await fetch("/api/marketvaluation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(analysisResult),
-      });
-
-      const valuation = await res.json();
-      analysisResult.marketValuation = valuation;
-    } catch {
-      analysisResult.marketValuation = { error: true };
-    }
-
-    // Final render
     renderAnalysis(analysisResult);
-
-    // Debug
-    console.log("FINAL ANALYSIS RESULT:", analysisResult);
   });
 
-  // init
+  // =========================
+  // EXPORT PDF (CLEAN REPORT)
+  // =========================
+  exportBtn?.addEventListener("click", () => {
+    if (!analysisResult) {
+      alert("Brak wyników do eksportu");
+      return;
+    }
+
+    const rows = Object.entries(analysisResult.indicators)
+      .filter(([_, d]) => d)
+      .map(([key, d]) => `
+        <tr>
+          <td>${key.toUpperCase()}</td>
+          <td>${d.signal || d.zone || "neutral"}</td>
+          <td>${(d.value ?? d.zScore).toFixed(2)}</td>
+        </tr>
+      `).join("");
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>CryptoVision – Report</title>
+<style>
+body { font-family: Arial; margin:40px; }
+h1 { text-align:center; }
+table { width:100%; border-collapse:collapse; margin-top:30px; }
+th, td { border:1px solid #000; padding:10px; text-align:center; }
+th { background:#eee; }
+.score { margin-top:40px; text-align:center; font-size:40px; font-weight:bold; }
+.zone { font-size:14px; margin-top:6px; }
+</style>
+</head>
+<body>
+<h1>CryptoVision – Market Analysis</h1>
+<p style="text-align:center;">
+Timeframe: ${analysisResult.meta.timeframe}<br>
+Generated: ${new Date(analysisResult.meta.createdAt).toLocaleString()}
+</p>
+
+<table>
+<tr><th>Indicator</th><th>Signal</th><th>Value</th></tr>
+${rows}
+</table>
+
+<div class="score">
+${analysisResult.marketValuation.score.toFixed(2)}
+<div class="zone">${analysisResult.marketValuation.valuation}</div>
+</div>
+
+</body>
+</html>
+`;
+
+    const w = window.open("", "_blank");
+    w.document.write(html);
+    w.document.close();
+    w.print();
+  });
+
   renderEmpty();
   updateCheckboxes();
 });
