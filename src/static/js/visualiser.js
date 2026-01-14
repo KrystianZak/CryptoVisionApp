@@ -11,7 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const autoSplitBtn = document.getElementById("auto-split");
   const clearBtn = document.getElementById("clear-storage");
 
-  const fmtUSD = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+  const fmtUSD = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
 
   // ====== Persistence ======
   const STORAGE_KEY = "cryptovision_visualiser_state_v1";
@@ -19,7 +22,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function saveState() {
     try {
       const capital = document.getElementById("capital")?.value ?? "";
-      const selectedCoins = Array.from(coinsSelect.selectedOptions).map((o) => o.value);
+      const selectedCoins = Array.from(coinsSelect.selectedOptions).map(
+        (o) => o.value
+      );
 
       const percents = {};
       selectedCoins.forEach((coin) => {
@@ -60,9 +65,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ====== UI helpers ======
   function showAlert(message, type = "error") {
-    alertBox.classList.remove("cv-alert--hidden", "cv-alert--error", "cv-alert--success", "cv-alert--info");
+    alertBox.classList.remove(
+      "cv-alert--hidden",
+      "cv-alert--error",
+      "cv-alert--success",
+      "cv-alert--info"
+    );
     alertBox.classList.add(
-      type === "success" ? "cv-alert--success" : type === "info" ? "cv-alert--info" : "cv-alert--error"
+      type === "success"
+        ? "cv-alert--success"
+        : type === "info"
+        ? "cv-alert--info"
+        : "cv-alert--error"
     );
     alertBox.textContent = message;
   }
@@ -70,7 +84,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function hideAlert() {
     alertBox.classList.add("cv-alert--hidden");
     alertBox.textContent = "";
-    alertBox.classList.remove("cv-alert--error", "cv-alert--success", "cv-alert--info");
+    alertBox.classList.remove(
+      "cv-alert--error",
+      "cv-alert--success",
+      "cv-alert--info"
+    );
   }
 
   function getSelectedCoins() {
@@ -101,8 +119,16 @@ document.addEventListener("DOMContentLoaded", () => {
     sumPill.textContent = `Suma: ${rounded}%`;
     remainingPill.textContent = `Pozostało: ${remaining}%`;
 
-    sumPill.classList.remove("cv-pill--neutral", "cv-pill--good", "cv-pill--bad");
-    remainingPill.classList.remove("cv-pill--neutral", "cv-pill--good", "cv-pill--bad");
+    sumPill.classList.remove(
+      "cv-pill--neutral",
+      "cv-pill--good",
+      "cv-pill--bad"
+    );
+    remainingPill.classList.remove(
+      "cv-pill--neutral",
+      "cv-pill--good",
+      "cv-pill--bad"
+    );
 
     if (rounded === 100) {
       sumPill.classList.add("cv-pill--good");
@@ -200,7 +226,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!input) return;
 
       let value = base;
-      if (idx === 0 && diff !== 0) value = Math.round((base + diff) * 100) / 100;
+      if (idx === 0 && diff !== 0)
+        value = Math.round((base + diff) * 100) / 100;
 
       input.value = value.toString();
     });
@@ -238,7 +265,10 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="cv-bar-row">
             <div class="cv-bar-label">${a.coin}</div>
             <div class="cv-bar-track">
-              <div class="cv-bar-fill" style="width:${Math.max(0, Math.min(100, a.percent))}%"></div>
+              <div class="cv-bar-fill" style="width:${Math.max(
+                0,
+                Math.min(100, a.percent)
+              )}%"></div>
             </div>
             <div class="cv-bar-val">${a.percent.toFixed(2)}%</div>
           </div>
@@ -273,9 +303,9 @@ document.addEventListener("DOMContentLoaded", () => {
           <table class="cv-table">
             <thead>
               <tr>
-                <th>Asset</th>
-                <th>Target Allocation</th>
-                <th>Target Amount</th>
+                <th>Aktywa</th>
+                <th>Docelowa alokacja</th>
+                <th>Docelowa kwota</th>
               </tr>
             </thead>
             <tbody>${rows}</tbody>
@@ -313,7 +343,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const rounded = Math.round(totalPercent * 100) / 100;
 
     if (rounded !== 100) {
-      showAlert(`Suma procentów musi wynosić 100% (obecnie: ${rounded}%).`, "error");
+      showAlert(
+        `Suma procentów musi wynosić 100% (obecnie: ${rounded}%).`,
+        "error"
+      );
       return;
     }
 
@@ -384,7 +417,10 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    if (typeof state.resultHTML === "string" && state.resultHTML.trim().length > 0) {
+    if (
+      typeof state.resultHTML === "string" &&
+      state.resultHTML.trim().length > 0
+    ) {
       resultDiv.innerHTML = state.resultHTML;
     }
 
