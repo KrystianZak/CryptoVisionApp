@@ -20,6 +20,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("analyzer-form");
   const resultBox = document.getElementById("analyzer-result");
   const exportBtn = document.getElementById("export-pdf");
+  const presetSelect = document.getElementById("preset-select");
+  const presetNameInput = document.getElementById("preset-name");
+  const savePresetBtn = document.getElementById("save-preset");
+  const deletePresetBtn = document.getElementById("delete-preset");
 
   // =========================
   // CHECKBOXES
@@ -27,9 +31,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const checkbox_mvrv = document.querySelector('input[value="mvrv"]');
   const checkbox_nupl = document.querySelector('input[value="nupl"]');
   const checkbox_rsi = document.querySelector('input[value="rsi"]');
-  const checkbox_zscore = document.querySelector('input[value="standarddeviation"]');
-  const checkbox_longshort = document.querySelector('input[value="longshortratio"]');
-  const checkbox_feargreed = document.querySelector('input[value="feargreedindex"]');
+  const checkbox_zscore = document.querySelector(
+    'input[value="standarddeviation"]'
+  );
+  const checkbox_longshort = document.querySelector(
+    'input[value="longshortratio"]'
+  );
+  const checkbox_feargreed = document.querySelector(
+    'input[value="feargreedindex"]'
+  );
 
   function updateCheckboxes() {
     mvrv = checkbox_mvrv?.checked ?? false;
@@ -42,7 +52,108 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document
     .querySelectorAll('input[type="checkbox"]')
-    .forEach(cb => cb.addEventListener("change", updateCheckboxes));
+    .forEach((cb) => cb.addEventListener("change", updateCheckboxes));
+
+  // =========================
+  // PRESET MANAGEMENT
+  // =========================
+  const PRESETS_KEY = "analyzer-presets";
+
+  function getPresets() {
+    try {
+      const data = localStorage.getItem(PRESETS_KEY);
+      return data ? JSON.parse(data) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function savePresets(presets) {
+    localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
+  }
+
+  function getCurrentSelection() {
+    return {
+      mvrv: checkbox_mvrv?.checked ?? false,
+      nupl: checkbox_nupl?.checked ?? false,
+      rsi: checkbox_rsi?.checked ?? false,
+      zscore: checkbox_zscore?.checked ?? false,
+      longShort: checkbox_longshort?.checked ?? false,
+      fearGreed: checkbox_feargreed?.checked ?? false,
+    };
+  }
+
+  function applySelection(selection) {
+    if (checkbox_mvrv) checkbox_mvrv.checked = selection.mvrv ?? false;
+    if (checkbox_nupl) checkbox_nupl.checked = selection.nupl ?? false;
+    if (checkbox_rsi) checkbox_rsi.checked = selection.rsi ?? false;
+    if (checkbox_zscore) checkbox_zscore.checked = selection.zscore ?? false;
+    if (checkbox_longshort)
+      checkbox_longshort.checked = selection.longShort ?? false;
+    if (checkbox_feargreed)
+      checkbox_feargreed.checked = selection.fearGreed ?? false;
+    updateCheckboxes();
+  }
+
+  function loadPresetsToSelect() {
+    const presets = getPresets();
+    presetSelect.innerHTML = '<option value="">-- Wybierz zapisany preset --</option>';
+    Object.keys(presets).forEach((name) => {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      presetSelect.appendChild(option);
+    });
+  }
+
+  savePresetBtn?.addEventListener("click", () => {
+    const name = presetNameInput.value.trim();
+    if (!name) {
+      alert("Wprowadź nazwę presetu");
+      return;
+    }
+
+    const selection = getCurrentSelection();
+    const presets = getPresets();
+    presets[name] = selection;
+    savePresets(presets);
+
+    presetNameInput.value = "";
+    loadPresetsToSelect();
+    presetSelect.value = name;
+    alert(`Preset "${name}" zapisany!`);
+  });
+
+  presetSelect?.addEventListener("change", () => {
+    const name = presetSelect.value;
+    if (!name) return;
+
+    const presets = getPresets();
+    const selection = presets[name];
+    if (selection) {
+      applySelection(selection);
+    }
+  });
+
+  deletePresetBtn?.addEventListener("click", () => {
+    const name = presetSelect.value;
+    if (!name) {
+      alert("Wybierz preset do usunięcia");
+      return;
+    }
+
+    if (!confirm(`Czy na pewno chcesz usunąć preset "${name}"?`)) {
+      return;
+    }
+
+    const presets = getPresets();
+    delete presets[name];
+    savePresets(presets);
+
+    loadPresetsToSelect();
+    presetSelect.value = "";
+    alert(`Preset "${name}" usunięty!`);
+  });
 
   // =========================
   // FETCH HELPER
@@ -78,23 +189,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderAnalysis(state) {
-    const rows = Object.entries(state.indicators).map(([key, d]) => {
-      if (!d) {
-        return `
+    const rows = Object.entries(state.indicators)
+      .map(([key, d]) => {
+        if (!d) {
+          return `
           <div class="an-row">
             <div class="an-row-title">${key.toUpperCase()}</div>
             <span class="an-pill an-pill--neutral">Brak danych</span>
           </div>
         `;
-      }
+        }
 
-      const label = d.signal || d.zone || "neutral";
-      const value =
-        key === "longShort" ? d.zScore :
-        key === "fearGreed" ? d.value :
-        d.value;
+        const label = d.signal || d.zone || "neutral";
+        const value =
+          key === "longShort"
+            ? d.zScore
+            : key === "fearGreed"
+              ? d.value
+              : d.value;
 
-      return `
+        return `
         <div class="an-row">
           <div>
             <div class="an-row-title">${key.toUpperCase()}</div>
@@ -103,7 +217,8 @@ document.addEventListener("DOMContentLoaded", () => {
           <span class="an-pill">Value: ${fmt(value)}</span>
         </div>
       `;
-    }).join("");
+      })
+      .join("");
 
     const mv = state.marketValuation;
 
@@ -134,53 +249,81 @@ document.addEventListener("DOMContentLoaded", () => {
     analysisResult = {
       meta: { timeframe, createdAt: new Date().toISOString() },
       indicators: {},
-      marketValuation: null
+      marketValuation: null,
     };
 
     resultBox.innerHTML = `<div class="an-card">Analiza w toku…</div>`;
 
     const jobs = [];
 
-    if (mvrv) jobs.push(fetchJSON("/api/mvrv", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ timeframe })
-    }).then(d => analysisResult.indicators.mvrv = d).catch(() => analysisResult.indicators.mvrv = null));
+    if (mvrv)
+      jobs.push(
+        fetchJSON("/api/mvrv", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ timeframe }),
+        })
+          .then((d) => (analysisResult.indicators.mvrv = d))
+          .catch(() => (analysisResult.indicators.mvrv = null))
+      );
 
-    if (nupl) jobs.push(fetchJSON("/api/nupl", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ timeframe })
-    }).then(d => analysisResult.indicators.nupl = d).catch(() => analysisResult.indicators.nupl = null));
+    if (nupl)
+      jobs.push(
+        fetchJSON("/api/nupl", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ timeframe }),
+        })
+          .then((d) => (analysisResult.indicators.nupl = d))
+          .catch(() => (analysisResult.indicators.nupl = null))
+      );
 
-    if (rsi) jobs.push(fetchJSON("/api/rsi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ timeframe })
-    }).then(d => analysisResult.indicators.rsi = d).catch(() => analysisResult.indicators.rsi = null));
+    if (rsi)
+      jobs.push(
+        fetchJSON("/api/rsi", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ timeframe }),
+        })
+          .then((d) => (analysisResult.indicators.rsi = d))
+          .catch(() => (analysisResult.indicators.rsi = null))
+      );
 
-    if (zscore) jobs.push(fetchJSON("/api/zscore", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ timeframe })
-    }).then(d => analysisResult.indicators.zscore = d).catch(() => analysisResult.indicators.zscore = null));
+    if (zscore)
+      jobs.push(
+        fetchJSON("/api/zscore", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ timeframe }),
+        })
+          .then((d) => (analysisResult.indicators.zscore = d))
+          .catch(() => (analysisResult.indicators.zscore = null))
+      );
 
-    if (longShort) jobs.push(fetchJSON("/api/longshort", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ timeframe })
-    }).then(d => analysisResult.indicators.longShort = d).catch(() => analysisResult.indicators.longShort = null));
+    if (longShort)
+      jobs.push(
+        fetchJSON("/api/longshort", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ timeframe }),
+        })
+          .then((d) => (analysisResult.indicators.longShort = d))
+          .catch(() => (analysisResult.indicators.longShort = null))
+      );
 
-    if (fearGreed) jobs.push(fetchJSON("/api/feargreed", { method: "POST" })
-      .then(d => analysisResult.indicators.fearGreed = d)
-      .catch(() => analysisResult.indicators.fearGreed = null));
+    if (fearGreed)
+      jobs.push(
+        fetchJSON("/api/feargreed", { method: "POST" })
+          .then((d) => (analysisResult.indicators.fearGreed = d))
+          .catch(() => (analysisResult.indicators.fearGreed = null))
+      );
 
     await Promise.all(jobs);
 
     analysisResult.marketValuation = await fetchJSON("/api/marketvaluation", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(analysisResult)
+      body: JSON.stringify(analysisResult),
     }).catch(() => null);
 
     renderAnalysis(analysisResult);
@@ -197,13 +340,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const rows = Object.entries(analysisResult.indicators)
       .filter(([_, d]) => d)
-      .map(([key, d]) => `
+      .map(
+        ([key, d]) => `
         <tr>
           <td>${key.toUpperCase()}</td>
           <td>${d.signal || d.zone || "neutral"}</td>
           <td>${(d.value ?? d.zScore).toFixed(2)}</td>
         </tr>
-      `).join("");
+      `
+      )
+      .join("");
 
     const html = `
 <!DOCTYPE html>
@@ -250,4 +396,5 @@ ${analysisResult.marketValuation.score.toFixed(2)}
 
   renderEmpty();
   updateCheckboxes();
+  loadPresetsToSelect();
 });

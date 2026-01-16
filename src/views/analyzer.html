@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pl">
   <head>
     <meta charset="UTF-8" />
@@ -41,8 +41,12 @@
             </select>
           </div>
           <div class="preset-area">
-            <input id="preset-name" placeholder="Preset name (opcjonalnie)" />
-            <button id="save-preset" type="button">Save</button>
+            <select id="preset-select" class="tf-select">
+              <option value="">-- Wybierz zapisany preset --</option>
+            </select>
+            <input id="preset-name" placeholder="Nazwa presetu" />
+            <button id="save-preset" type="button">Zapisz</button>
+            <button id="delete-preset" type="button">Usuń</button>
           </div>
         </div>
 
